@@ -114,7 +114,7 @@
 
   .card {
     background: #fff; border: 1px solid var(--cor-borda); border-radius: var(--raio);
-    padding: 1.75rem; max-width: 640px; margin: 0 auto;
+    padding: 2rem 2.5rem; max-width: 960px; margin: 0 auto;
     box-shadow: 0 10px 30px rgba(13,21,30,0.06);
   }
   label { display: block; font-size: 0.9rem; font-weight: 600; margin: 0.9rem 0 0.35rem; }
@@ -124,8 +124,11 @@
   }
   input:focus, textarea:focus { outline: 2px solid var(--cor-destaque); outline-offset: 1px; border-color: var(--cor-destaque); }
   textarea { min-height: 90px; resize: vertical; }
-  .linha-dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
-  @media (max-width: 560px) { .linha-dupla { grid-template-columns: 1fr; } }
+  .linha-dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
+  .linha-tripla { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 1.5rem; }
+  @media (max-width: 760px) {
+    .linha-dupla, .linha-tripla { grid-template-columns: 1fr; }
+  }
   .checkbox-linha { display: flex; align-items: center; gap: 0.5rem; margin-top: 1.1rem; }
   .checkbox-linha input { width: auto; }
 
@@ -221,7 +224,7 @@
       </div>
 
       <form id="form-agendamento" class="card">
-        <div class="linha-dupla">
+        <div class="linha-tripla">
           <div>
             <label for="nome">Nome</label>
             <input id="nome" name="nome" required autocomplete="name" />
@@ -230,20 +233,17 @@
             <label for="telefone">Telefone (WhatsApp)</label>
             <input id="telefone" name="telefone" required autocomplete="tel" placeholder="(11) 99999-9999" />
           </div>
-        </div>
-
-        <div class="linha-dupla">
           <div>
             <label for="email">Email (opcional)</label>
             <input id="email" name="email" type="email" autocomplete="email" />
           </div>
+        </div>
+
+        <div class="linha-tripla">
           <div>
             <label for="endereco">Endereço (opcional)</label>
             <input id="endereco" name="endereco" autocomplete="street-address" />
           </div>
-        </div>
-
-        <div class="linha-dupla">
           <div>
             <label for="placa">Placa do carro</label>
             <input id="placa" name="placa" required placeholder="ABC1D23" />
@@ -254,23 +254,28 @@
           </div>
         </div>
 
-        <label for="hora_agendamento">Horário desejado</label>
-        <input id="hora_agendamento" name="hora_agendamento" type="time" required />
-
-        <div class="checkbox-linha">
-          <input id="precisa_guincho" name="precisa_guincho" type="checkbox" />
-          <label for="precisa_guincho" style="margin:0;">Preciso de guincho</label>
+        <div class="linha-dupla">
+          <div>
+            <label for="hora_agendamento">Horário desejado</label>
+            <input id="hora_agendamento" name="hora_agendamento" type="time" required />
+          </div>
+          <div style="display:flex; align-items:flex-end;">
+            <div class="checkbox-linha" style="margin-top:0;">
+              <input id="precisa_guincho" name="precisa_guincho" type="checkbox" />
+              <label for="precisa_guincho" style="margin:0;">Preciso de guincho</label>
+            </div>
+          </div>
         </div>
 
         <label for="descricao_problema">Descreva o problema do carro</label>
-        <textarea id="descricao_problema" name="descricao_problema" required></textarea>
+        <textarea id="descricao_problema" name="descricao_problema" required style="min-height:120px;"></textarea>
 
         <div class="cf-turnstile" data-sitekey="SUA_SITE_KEY_DO_TURNSTILE" style="margin-top:1.1rem;"></div>
 
         <button type="submit" class="botao botao-primario">Solicitar agendamento</button>
       </form>
 
-      <div id="mensagem" style="max-width:640px; margin:0 auto;"></div>
+      <div id="mensagem" style="max-width:960px; margin:0 auto;"></div>
     </div>
   </section>
 
