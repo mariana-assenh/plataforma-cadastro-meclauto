@@ -1,41 +1,261 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MECLAUTO — Agendar atendimento</title>
-  <link rel="icon" href="assets/logo-meclauto.png" />
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MECLAUTO — Híbridos, Elétricos e Combustão</title>
+<link rel="icon" href="assets/logo-meclauto.png" />
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<style>
+  /* ---------- tokens de marca (extraídos da logo da MECLAUTO) ---------- */
+  :root {
+    --cor-primaria: #0d151e;        /* grafite escuro do fundo da logo */
+    --cor-primaria-escura: #060a10;
+    --cor-destaque: #74b145;        /* verde da logo */
+    --cor-destaque-escura: #5c8f36;
+    --cor-destaque-clara: #e4f3d6;
+    --cor-prata: #cbcdd6;           /* prata do anel/carro */
+    --cor-fundo: #f5f6f8;
+    --cor-texto: #1f2430;
+    --cor-borda: #d7dbe0;
+    --fonte-principal: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --raio: 14px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: var(--fonte-principal); background: var(--cor-fundo); color: var(--cor-texto); }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ---------- navbar ---------- */
+  .navbar {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--cor-primaria);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .navbar .container { display: flex; align-items: center; justify-content: space-between; padding-top: 0.6rem; padding-bottom: 0.6rem; gap: 1rem; }
+  .marca { display: flex; align-items: center; gap: 0.65rem; text-decoration: none; }
+  .marca img { height: 40px; width: auto; border-radius: 6px; }
+  .marca span { color: #fff; font-weight: 700; letter-spacing: 0.02em; font-size: 1.05rem; }
+  .nav-links { display: flex; gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
+  .nav-links a { color: var(--cor-prata); text-decoration: none; font-size: 0.92rem; }
+  .nav-links a:hover { color: #fff; }
+  .navbar .botao-pill { white-space: nowrap; }
+  @media (max-width: 720px) { .nav-links { display: none; } }
+
+  /* ---------- botões ---------- */
+  .botao {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1.4rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem;
+    text-decoration: none; border: none; cursor: pointer; line-height: 1;
+  }
+  .botao-primario { background: var(--cor-destaque); color: #fff; }
+  .botao-primario:hover { background: var(--cor-destaque-escura); }
+  .botao-secundario { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.5); }
+  .botao-secundario:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
+  .botao-pill { padding: 0.55rem 1.15rem; font-size: 0.88rem; }
+  .botao svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    background:
+      radial-gradient(ellipse at top right, rgba(116,177,69,0.16), transparent 55%),
+      linear-gradient(180deg, var(--cor-primaria), var(--cor-primaria-escura));
+    color: #fff;
+    padding: 3.5rem 0 4rem;
+  }
+  .hero .container { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: center; }
+  @media (max-width: 860px) { .hero .container { grid-template-columns: 1fr; } }
+
+  .selo {
+    display: inline-block; border: 1px solid var(--cor-destaque); color: var(--cor-destaque);
+    border-radius: 999px; padding: 0.3rem 0.9rem; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.1rem;
+  }
+  .hero h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); line-height: 1.05; margin: 0 0 0.5rem; font-weight: 800; }
+  .hero h1 .verde { color: var(--cor-destaque); }
+  .hero .subtitulo { color: var(--cor-prata); font-size: 1.05rem; margin: 0 0 1.1rem; }
+  .hero p.descricao { color: rgba(255,255,255,0.82); font-size: 1rem; line-height: 1.6; max-width: 46ch; margin: 0 0 1.75rem; }
+  .hero .botoes { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+
+  .hero-imagem { display: flex; justify-content: center; }
+  .hero-imagem .moldura {
+    background: radial-gradient(circle at 30% 20%, #1b2531, #05080c 70%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px; padding: 1.75rem; max-width: 340px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  }
+
+  /* ---------- serviços ---------- */
+  .servicos { background: var(--cor-primaria-escura); color: #fff; padding: 3rem 0; }
+  .servicos h2 { text-align: center; font-size: 1.5rem; margin: 0 0 2rem; }
+  .servicos .grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  @media (max-width: 720px) { .servicos .grade { grid-template-columns: 1fr; } }
+  .servico-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--raio); padding: 1.4rem;
+  }
+  .servico-card .icone {
+    width: 42px; height: 42px; border-radius: 10px; background: var(--cor-destaque-clara);
+    color: var(--cor-destaque-escura); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; margin-bottom: 0.9rem;
+  }
+  .servico-card h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+  .servico-card p { margin: 0; color: var(--cor-prata); font-size: 0.9rem; line-height: 1.5; }
+
+  /* ---------- seção de agendamento ---------- */
+  .secao-agendamento { padding: 3.5rem 0 4rem; }
+  .secao-agendamento .cabecalho { text-align: center; max-width: 46ch; margin: 0 auto 2rem; }
+  .secao-agendamento .cabecalho h2 { font-size: 1.6rem; margin: 0 0 0.5rem; }
+  .secao-agendamento .cabecalho p { color: #5b6472; margin: 0; }
+
+  .card {
+    background: #fff; border: 1px solid var(--cor-borda); border-radius: var(--raio);
+    padding: 1.75rem; max-width: 640px; margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(13,21,30,0.06);
+  }
+  label { display: block; font-size: 0.9rem; font-weight: 600; margin: 0.9rem 0 0.35rem; }
+  input, textarea, select {
+    width: 100%; padding: 0.65rem 0.75rem; border: 1px solid var(--cor-borda);
+    border-radius: 8px; font-family: inherit; font-size: 0.95rem; background: #fff; color: var(--cor-texto);
+  }
+  input:focus, textarea:focus { outline: 2px solid var(--cor-destaque); outline-offset: 1px; border-color: var(--cor-destaque); }
+  textarea { min-height: 90px; resize: vertical; }
+  .linha-dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  @media (max-width: 560px) { .linha-dupla { grid-template-columns: 1fr; } }
+  .checkbox-linha { display: flex; align-items: center; gap: 0.5rem; margin-top: 1.1rem; }
+  .checkbox-linha input { width: auto; }
+
+  .card button[type="submit"] {
+    width: 100%; margin-top: 1.6rem; padding: 0.85rem 1.4rem;
+  }
+
+  .mensagem { margin-top: 1rem; padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.9rem; }
+  .mensagem.sucesso { background: var(--cor-destaque-clara); color: #3d611f; }
+  .mensagem.erro { background: #fbe6e6; color: #9c2a2a; }
+
+  /* ---------- rodapé ---------- */
+  .rodape { background: var(--cor-primaria); color: var(--cor-prata); padding: 2rem 0; font-size: 0.85rem; }
+  .rodape .container { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+  .rodape .marca span { color: #fff; }
+  .rodape a.whats { color: var(--cor-destaque); text-decoration: none; font-weight: 600; }
+</style>
 </head>
 <body>
-  <header class="topo">
-    <img class="logo" src="assets/logo-meclauto.png" alt="MECLAUTO — Híbridos, Elétricos e Combustão" />
-    <div class="titulos">
-      <strong>MECLAUTO</strong>
-      <span>Agendamento de atendimento</span>
+
+  <nav class="navbar">
+    <div class="container">
+      <a class="marca" href="#topo">
+        <img src="assets/logo-meclauto.png" alt="MECLAUTO" />
+        <span>MECLAUTO</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#topo">Início</a></li>
+        <li><a href="#servicos">Serviços</a></li>
+        <li><a href="#agendamento">Agendamento</a></li>
+      </ul>
+      <a class="botao botao-primario botao-pill" href="#agendamento">Agendar horário</a>
     </div>
-  </header>
+  </nav>
 
-  <main>
-    <div class="card">
-      <p>Preencha os dados abaixo para solicitar um horário. Nossa equipe confirma o agendamento e entra em contato se precisar de mais alguma informação.</p>
+  <section class="hero" id="topo">
+    <div class="container">
+      <div>
+        <span class="selo">Agendamento online</span>
+        <h1><span class="verde">MECL</span>AUTO</h1>
+        <p class="subtitulo">Híbridos, Elétricos e Combustão</p>
+        <p class="descricao">
+          Agende a revisão ou o reparo do seu carro sem sair de casa. Fale
+          direto com a nossa equipe pelo WhatsApp ou marque um horário
+          agora mesmo pelo site.
+        </p>
+        <div class="botoes">
+          <a class="botao botao-primario" id="link-whatsapp-hero" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3C6.48 3 2 6.94 2 11.8c0 2.63 1.34 4.98 3.44 6.58L5 21l3.19-1.28c1.16.36 2.42.56 3.81.56 5.52 0 10-3.94 10-8.8S17.52 3 12 3Z" fill="currentColor"/>
+            </svg>
+            Falar no WhatsApp
+          </a>
+          <a class="botao botao-secundario" href="#agendamento">Agendar horário</a>
+        </div>
+      </div>
+      <div class="hero-imagem">
+        <div class="moldura">
+          <img src="assets/logo-meclauto.png" alt="MECLAUTO — Híbridos, Elétricos e Combustão" />
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <form id="form-agendamento">
-        <label for="nome">Nome</label>
-        <input id="nome" name="nome" required autocomplete="name" />
+  <section class="servicos" id="servicos">
+    <div class="container">
+      <h2>O que atendemos</h2>
+      <div class="grade">
+        <div class="servico-card">
+          <div class="icone">H</div>
+          <h3>Híbridos</h3>
+          <p>Diagnóstico e manutenção do sistema híbrido, bateria e motor a combustão em conjunto.</p>
+        </div>
+        <div class="servico-card">
+          <div class="icone">E</div>
+          <h3>Elétricos</h3>
+          <p>Revisão do sistema elétrico de tração, carregamento e componentes de alta tensão.</p>
+        </div>
+        <div class="servico-card">
+          <div class="icone">C</div>
+          <h3>Combustão</h3>
+          <p>Manutenção completa de motores a combustão: revisão, elétrica, suspensão e mais.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <label for="telefone">Telefone (WhatsApp)</label>
-        <input id="telefone" name="telefone" required autocomplete="tel" placeholder="(11) 99999-9999" />
+  <section class="secao-agendamento" id="agendamento">
+    <div class="container">
+      <div class="cabecalho">
+        <h2>Agende seu atendimento</h2>
+        <p>Preencha os dados abaixo. Nossa equipe confirma o horário e entra em contato se precisar de mais alguma informação.</p>
+      </div>
 
-        <label for="email">Email (opcional)</label>
-        <input id="email" name="email" type="email" autocomplete="email" />
+      <form id="form-agendamento" class="card">
+        <div class="linha-dupla">
+          <div>
+            <label for="nome">Nome</label>
+            <input id="nome" name="nome" required autocomplete="name" />
+          </div>
+          <div>
+            <label for="telefone">Telefone (WhatsApp)</label>
+            <input id="telefone" name="telefone" required autocomplete="tel" placeholder="(11) 99999-9999" />
+          </div>
+        </div>
 
-        <label for="endereco">Endereço (opcional)</label>
-        <input id="endereco" name="endereco" autocomplete="street-address" />
+        <div class="linha-dupla">
+          <div>
+            <label for="email">Email (opcional)</label>
+            <input id="email" name="email" type="email" autocomplete="email" />
+          </div>
+          <div>
+            <label for="endereco">Endereço (opcional)</label>
+            <input id="endereco" name="endereco" autocomplete="street-address" />
+          </div>
+        </div>
 
-        <label for="placa">Placa do carro</label>
-        <input id="placa" name="placa" required placeholder="ABC1D23" />
+        <div class="linha-dupla">
+          <div>
+            <label for="placa">Placa do carro</label>
+            <input id="placa" name="placa" required placeholder="ABC1D23" />
+          </div>
+          <div>
+            <label for="data_agendamento">Data desejada</label>
+            <input id="data_agendamento" name="data_agendamento" type="date" required />
+          </div>
+        </div>
+
+        <label for="hora_agendamento">Horário desejado</label>
+        <input id="hora_agendamento" name="hora_agendamento" type="time" required />
 
         <div class="checkbox-linha">
           <input id="precisa_guincho" name="precisa_guincho" type="checkbox" />
@@ -45,22 +265,72 @@
         <label for="descricao_problema">Descreva o problema do carro</label>
         <textarea id="descricao_problema" name="descricao_problema" required></textarea>
 
-        <label for="data_agendamento">Data desejada</label>
-        <input id="data_agendamento" name="data_agendamento" type="date" required />
+        <div class="cf-turnstile" data-sitekey="SUA_SITE_KEY_DO_TURNSTILE" style="margin-top:1.1rem;"></div>
 
-        <label for="hora_agendamento">Horário desejado</label>
-        <input id="hora_agendamento" name="hora_agendamento" type="time" required />
-
-        <div class="cf-turnstile" data-sitekey="SUA_SITE_KEY_DO_TURNSTILE" style="margin-top:1rem;"></div>
-
-        <button type="submit">Solicitar agendamento</button>
+        <button type="submit" class="botao botao-primario">Solicitar agendamento</button>
       </form>
 
-      <div id="mensagem"></div>
+      <div id="mensagem" style="max-width:640px; margin:0 auto;"></div>
     </div>
-  </main>
+  </section>
 
-  <script src="js/config.js"></script>
-  <script src="js/main.js"></script>
+  <footer class="rodape">
+    <div class="container">
+      <a class="marca" href="#topo">
+        <img src="assets/logo-meclauto.png" alt="MECLAUTO" style="height:32px;" />
+        <span>MECLAUTO</span>
+      </a>
+      <span>Híbridos, Elétricos e Combustão</span>
+      <a class="whats" id="link-whatsapp-rodape" href="#" target="_blank" rel="noopener">Falar no WhatsApp</a>
+    </div>
+  </footer>
+
+<script>
+  // ---------- config: preencha com os dados reais antes do deploy ----------
+  const CONFIG = {
+    WORKER_URL: "https://oficina-worker.SEU-SUBDOMINIO.workers.dev",
+    WHATSAPP_NUMERO: "5511999999999", // troque pelo número real, só dígitos, com DDI 55
+    WHATSAPP_MENSAGEM: "Olá! Vim pelo site da MECLAUTO e gostaria de agendar um atendimento.",
+  };
+
+  const linkWhats = `https://wa.me/${CONFIG.WHATSAPP_NUMERO}?text=${encodeURIComponent(CONFIG.WHATSAPP_MENSAGEM)}`;
+  document.getElementById("link-whatsapp-hero").href = linkWhats;
+  document.getElementById("link-whatsapp-rodape").href = linkWhats;
+
+  const form = document.getElementById("form-agendamento");
+  const msg = document.getElementById("mensagem");
+
+  function mostrarMensagem(texto, tipo) {
+    msg.textContent = texto;
+    msg.className = "mensagem " + tipo;
+  }
+
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    mostrarMensagem("Enviando...", "sucesso");
+
+    const dados = Object.fromEntries(new FormData(form).entries());
+    dados.precisa_guincho = form.precisa_guincho.checked;
+    dados["cf-turnstile-response"] = form.querySelector('[name="cf-turnstile-response"]')?.value || "";
+
+    try {
+      const resp = await fetch(`${CONFIG.WORKER_URL}/public/agendamentos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados),
+      });
+      const resultado = await resp.json();
+      if (!resp.ok) throw new Error(resultado.error || "erro ao enviar solicitação");
+
+      mostrarMensagem(
+        "Solicitação enviada! Assim que a equipe confirmar, você recebe um retorno pelo telefone informado.",
+        "sucesso"
+      );
+      form.reset();
+    } catch (erro) {
+      mostrarMensagem("Não foi possível enviar: " + erro.message, "erro");
+    }
+  });
+</script>
 </body>
 </html>

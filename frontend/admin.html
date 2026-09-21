@@ -1,24 +1,81 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MECLAUTO — Painel administrativo</title>
-  <link rel="icon" href="assets/logo-meclauto.png" />
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MECLAUTO — Painel administrativo</title>
+<link rel="icon" href="assets/logo-meclauto.png" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root {
+    --cor-primaria: #0d151e;
+    --cor-primaria-escura: #060a10;
+    --cor-destaque: #74b145;
+    --cor-destaque-escura: #5c8f36;
+    --cor-destaque-clara: #e4f3d6;
+    --cor-prata: #cbcdd6;
+    --cor-fundo: #f5f6f8;
+    --cor-texto: #1f2430;
+    --cor-borda: #d7dbe0;
+    --fonte-principal: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --raio: 12px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--fonte-principal); background: var(--cor-fundo); color: var(--cor-texto); }
+
+  header.topo {
+    background: var(--cor-primaria); color: #fff;
+    padding: 0.85rem 1.5rem; display: flex; align-items: center; gap: 0.9rem;
+  }
+  header.topo img.logo { height: 44px; width: auto; border-radius: 8px; }
+  header.topo .titulos { display: flex; flex-direction: column; line-height: 1.25; }
+  header.topo .titulos strong { font-size: 1rem; font-weight: 700; }
+  header.topo .titulos span { font-size: 0.8rem; color: var(--cor-prata); }
+
+  main { max-width: 960px; margin: 2rem auto; padding: 0 1rem 3rem; }
+
+  .card { background: #fff; border: 1px solid var(--cor-borda); border-radius: var(--raio); padding: 1.5rem; margin-bottom: 1.25rem; }
+  label { display: block; font-size: 0.9rem; font-weight: 600; margin: 0.9rem 0 0.3rem; }
+  input, textarea, select { width: 100%; padding: 0.6rem 0.7rem; border: 1px solid var(--cor-borda); border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+
+  button {
+    margin-top: 1.2rem; background: var(--cor-destaque); color: #fff; border: none;
+    padding: 0.7rem 1.3rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--cor-destaque-escura); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  #login-mensagem { margin-top: 0.75rem; font-size: 0.9rem; color: #9c2a2a; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--cor-borda); }
+  th { background: #eef1f4; }
+
+  .badge { padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+  .badge.pendente { background: #fff2d9; color: #8a5a00; }
+  .badge.confirmado { background: var(--cor-destaque-clara); color: #3d611f; }
+  .badge.cancelado { background: #fbe6e6; color: #9c2a2a; }
+  .badge.concluido { background: #e2e7ef; color: #384766; }
+
+  .acoes button { margin: 0.15rem 0.25rem 0.15rem 0; padding: 0.35rem 0.7rem; font-size: 0.82rem; }
+  .acoes button.secundario { background: #fff; color: var(--cor-primaria); border: 1px solid var(--cor-primaria); }
+  .acoes button.perigo { background: #c0392b; }
+
+  nav.abas { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+  nav.abas button { margin: 0; background: #fff; color: var(--cor-primaria); border: 1px solid var(--cor-primaria); }
+  nav.abas button.ativa { background: var(--cor-primaria); color: #fff; }
+</style>
 </head>
 <body>
   <header class="topo">
-    <img class="logo" src="assets/logo-meclauto.png" alt="MECLAUTO — Híbridos, Elétricos e Combustão" />
+    <img class="logo" src="assets/logo-meclauto.png" alt="MECLAUTO" />
     <div class="titulos">
       <strong>MECLAUTO</strong>
       <span>Painel administrativo</span>
     </div>
   </header>
 
-  <main style="max-width: 960px;">
-    <!-- tela de login -->
+  <main>
     <div class="card" id="card-login">
       <h2>Entrar</h2>
       <label for="login-email">Email</label>
@@ -29,11 +86,10 @@
       <div id="login-mensagem"></div>
     </div>
 
-    <!-- painel, só aparece depois do login -->
     <div id="painel" style="display:none;">
       <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
         <span id="usuario-logado"></span>
-        <button id="btn-logout" class="secundario" style="background:#fff;color:var(--cor-primaria);border:1px solid var(--cor-primaria);">Sair</button>
+        <button id="btn-logout" style="background:#fff;color:var(--cor-primaria);border:1px solid var(--cor-primaria);margin:0;">Sair</button>
       </div>
 
       <nav class="abas">
@@ -55,9 +111,7 @@
         </div>
         <table>
           <thead>
-            <tr>
-              <th>Data/Hora</th><th>Cliente</th><th>Placa</th><th>Guincho</th><th>Problema</th><th>Status</th><th>Ações</th>
-            </tr>
+            <tr><th>Data/Hora</th><th>Cliente</th><th>Placa</th><th>Guincho</th><th>Problema</th><th>Status</th><th>Ações</th></tr>
           </thead>
           <tbody id="tabela-agendamentos"></tbody>
         </table>
@@ -74,8 +128,187 @@
     </div>
   </main>
 
-  <script src="js/config.js"></script>
-  <script src="js/supabaseClient.js"></script>
-  <script src="js/admin.js"></script>
+<script>
+  // ---------- config: preencha com os dados reais antes do deploy ----------
+  const CONFIG = {
+    WORKER_URL: "https://oficina-worker.SEU-SUBDOMINIO.workers.dev",
+    SUPABASE_URL: "https://SEU-PROJETO.supabase.co",
+    SUPABASE_ANON_KEY: "SUA_ANON_KEY_AQUI",
+  };
+
+  const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+  const cardLogin = document.getElementById("card-login");
+  const painel = document.getElementById("painel");
+  const loginMsg = document.getElementById("login-mensagem");
+  const usuarioLogado = document.getElementById("usuario-logado");
+
+  let sessaoAtual = null;
+
+  async function chamarApi(caminho, opcoes = {}) {
+    const headers = Object.assign(
+      { "Content-Type": "application/json", Authorization: `Bearer ${sessaoAtual.access_token}` },
+      opcoes.headers || {}
+    );
+    const resp = await fetch(`${CONFIG.WORKER_URL}${caminho}`, { ...opcoes, headers });
+    const dados = await resp.json();
+    if (!resp.ok) throw new Error(dados.error || "erro na requisição");
+    return dados;
+  }
+
+  document.getElementById("btn-login").addEventListener("click", async () => {
+    const email = document.getElementById("login-email").value;
+    const senha = document.getElementById("login-senha").value;
+    loginMsg.textContent = "Entrando...";
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
+    if (error) {
+      loginMsg.textContent = "Erro no login: " + error.message;
+      return;
+    }
+    sessaoAtual = data.session;
+    usuarioLogado.textContent = data.user.email;
+    cardLogin.style.display = "none";
+    painel.style.display = "block";
+    carregarAgendamentos();
+    carregarClientes();
+  });
+
+  document.getElementById("btn-logout").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    sessaoAtual = null;
+    painel.style.display = "none";
+    cardLogin.style.display = "block";
+  });
+
+  document.querySelectorAll("nav.abas button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("nav.abas button").forEach((b) => b.classList.remove("ativa"));
+      btn.classList.add("ativa");
+      document.getElementById("aba-agendamentos").style.display = btn.dataset.aba === "agendamentos" ? "block" : "none";
+      document.getElementById("aba-clientes").style.display = btn.dataset.aba === "clientes" ? "block" : "none";
+    });
+  });
+
+  async function carregarAgendamentos() {
+    const status = document.getElementById("filtro-status").value;
+    const query = status ? `?status=${status}` : "";
+    const lista = await chamarApi(`/admin/agendamentos${query}`);
+    const corpo = document.getElementById("tabela-agendamentos");
+    corpo.innerHTML = "";
+    for (const ag of lista) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${ag.data_agendamento} ${ag.hora_agendamento?.slice(0, 5) ?? ""}</td>
+        <td>${ag.clientes?.nome ?? ""}<br><small>${ag.clientes?.telefone ?? ""}</small></td>
+        <td>${ag.placa}</td>
+        <td>${ag.precisa_guincho ? "Sim" : "Não"}</td>
+        <td>${ag.descricao_problema}</td>
+        <td><span class="badge ${ag.status}">${ag.status}</span></td>
+        <td class="acoes"></td>
+      `;
+      const acoes = tr.querySelector(".acoes");
+      if (ag.status === "pendente") {
+        const b = document.createElement("button");
+        b.textContent = "Confirmar";
+        b.onclick = () => mudarStatus(ag.id, "confirmado");
+        acoes.appendChild(b);
+      }
+      if (ag.status !== "cancelado") {
+        const b = document.createElement("button");
+        b.textContent = "Cancelar";
+        b.className = "perigo";
+        b.onclick = () => mudarStatus(ag.id, "cancelado");
+        acoes.appendChild(b);
+      }
+      if (ag.status === "confirmado") {
+        const b = document.createElement("button");
+        b.textContent = "Concluir";
+        b.className = "secundario";
+        b.onclick = () => mudarStatus(ag.id, "concluido");
+        acoes.appendChild(b);
+      }
+      corpo.appendChild(tr);
+    }
+  }
+
+  async function mudarStatus(id, status) {
+    try {
+      await chamarApi(`/admin/agendamentos/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
+      carregarAgendamentos();
+    } catch (e) {
+      alert("Erro: " + e.message);
+    }
+  }
+
+  document.getElementById("filtro-status").addEventListener("change", carregarAgendamentos);
+
+  async function carregarClientes() {
+    const lista = await chamarApi("/admin/clientes");
+    const corpo = document.getElementById("tabela-clientes");
+    corpo.innerHTML = "";
+    for (const cli of lista) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${cli.nome}</td><td>${cli.telefone}</td><td>${cli.email ?? ""}</td><td>${cli.endereco ?? ""}</td>
+        <td class="acoes"></td>
+      `;
+      const acoes = tr.querySelector(".acoes");
+      const btnEditar = document.createElement("button");
+      btnEditar.textContent = "Editar";
+      btnEditar.className = "secundario";
+      btnEditar.onclick = () => editarCliente(cli);
+      acoes.appendChild(btnEditar);
+
+      const btnExcluir = document.createElement("button");
+      btnExcluir.textContent = "Excluir";
+      btnExcluir.className = "perigo";
+      btnExcluir.onclick = () => excluirCliente(cli.id);
+      acoes.appendChild(btnExcluir);
+
+      corpo.appendChild(tr);
+    }
+  }
+
+  async function editarCliente(cli) {
+    const nome = prompt("Nome", cli.nome);
+    if (nome === null) return;
+    const telefone = prompt("Telefone", cli.telefone);
+    if (telefone === null) return;
+    const email = prompt("Email", cli.email ?? "");
+    const endereco = prompt("Endereço", cli.endereco ?? "");
+    try {
+      await chamarApi(`/admin/clientes/${cli.id}`, { method: "PUT", body: JSON.stringify({ nome, telefone, email, endereco }) });
+      carregarClientes();
+    } catch (e) {
+      alert("Erro: " + e.message);
+    }
+  }
+
+  async function excluirCliente(id) {
+    if (!confirm("Excluir este cliente e os agendamentos vinculados?")) return;
+    try {
+      await chamarApi(`/admin/clientes/${id}`, { method: "DELETE" });
+      carregarClientes();
+      carregarAgendamentos();
+    } catch (e) {
+      alert("Erro: " + e.message);
+    }
+  }
+
+  document.getElementById("btn-novo-cliente").addEventListener("click", async () => {
+    const nome = prompt("Nome");
+    if (!nome) return;
+    const telefone = prompt("Telefone");
+    if (!telefone) return;
+    const email = prompt("Email (opcional)") || null;
+    const endereco = prompt("Endereço (opcional)") || null;
+    try {
+      await chamarApi("/admin/clientes", { method: "POST", body: JSON.stringify({ nome, telefone, email, endereco }) });
+      carregarClientes();
+    } catch (e) {
+      alert("Erro: " + e.message);
+    }
+  });
+</script>
 </body>
 </html>
