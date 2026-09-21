@@ -1,0 +1,19 @@
+name = "oficina-worker"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Variáveis não-secretas podem ficar aqui.
+# Segredos (chaves) NUNCA vão neste arquivo — configure com:
+#   wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+#   wrangler secret put SUPABASE_ANON_KEY
+#   wrangler secret put GOOGLE_CLIENT_EMAIL
+#   wrangler secret put GOOGLE_PRIVATE_KEY
+#   wrangler secret put TURNSTILE_SECRET_KEY
+[vars]
+SUPABASE_URL = "https://SEU-PROJETO.supabase.co"
+GOOGLE_CALENDAR_ID = "seuemail@gmail.com"
+ALLOWED_ORIGIN = "https://SEU-SITE.pages.dev"
+
+# Se quiser rodar como Pages Functions em vez de Worker separado,
+# dá pra adaptar isso depois — a lógica do src/ não muda.

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MECLAUTO — Painel administrativo</title>
+  <link rel="icon" href="assets/logo-meclauto.png" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <header class="topo">
+    <img class="logo" src="assets/logo-meclauto.png" alt="MECLAUTO — Híbridos, Elétricos e Combustão" />
+    <div class="titulos">
+      <strong>MECLAUTO</strong>
+      <span>Painel administrativo</span>
+    </div>
+  </header>
+
+  <main style="max-width: 960px;">
+    <!-- tela de login -->
+    <div class="card" id="card-login">
+      <h2>Entrar</h2>
+      <label for="login-email">Email</label>
+      <input id="login-email" type="email" autocomplete="username" />
+      <label for="login-senha">Senha</label>
+      <input id="login-senha" type="password" autocomplete="current-password" />
+      <button id="btn-login">Entrar</button>
+      <div id="login-mensagem"></div>
+    </div>
+
+    <!-- painel, só aparece depois do login -->
+    <div id="painel" style="display:none;">
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <span id="usuario-logado"></span>
+        <button id="btn-logout" class="secundario" style="background:#fff;color:var(--cor-primaria);border:1px solid var(--cor-primaria);">Sair</button>
+      </div>
+
+      <nav class="abas">
+        <button data-aba="agendamentos" class="ativa">Agendamentos</button>
+        <button data-aba="clientes">Clientes</button>
+      </nav>
+
+      <section id="aba-agendamentos" class="card">
+        <h2>Agendamentos</h2>
+        <div>
+          <label for="filtro-status" style="display:inline-block;">Filtrar por status</label>
+          <select id="filtro-status" style="width:auto; display:inline-block;">
+            <option value="">Todos</option>
+            <option value="pendente">Pendente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="cancelado">Cancelado</option>
+            <option value="concluido">Concluído</option>
+          </select>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Data/Hora</th><th>Cliente</th><th>Placa</th><th>Guincho</th><th>Problema</th><th>Status</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-agendamentos"></tbody>
+        </table>
+      </section>
+
+      <section id="aba-clientes" class="card" style="display:none;">
+        <h2>Clientes</h2>
+        <button id="btn-novo-cliente">+ Novo cliente</button>
+        <table>
+          <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Endereço</th><th>Ações</th></tr></thead>
+          <tbody id="tabela-clientes"></tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
