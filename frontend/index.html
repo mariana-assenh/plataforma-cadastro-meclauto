@@ -129,6 +129,17 @@
   @media (max-width: 760px) {
     .linha-dupla, .linha-tripla { grid-template-columns: 1fr; }
   }
+
+  .linha-flex { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0 1.5rem; }
+  .linha-flex > div { margin-top: 0.9rem; }
+  .campo-grande { flex: 2 1 280px; }
+  .campo-medio { flex: 1 1 180px; }
+  .campo-compacto { flex: 0 0 auto; }
+  .campo-compacto input { width: 140px; box-sizing: border-box; }
+  @media (max-width: 560px) {
+    .campo-grande, .campo-medio, .campo-compacto { flex: 1 1 100%; }
+    .campo-compacto input { width: 100%; }
+  }
   .checkbox-linha { display: flex; align-items: center; gap: 0.5rem; margin-top: 1.1rem; }
   .checkbox-linha input { width: auto; }
 
@@ -239,31 +250,29 @@
           </div>
         </div>
 
-        <div class="linha-tripla">
-          <div>
+        <div class="linha-flex">
+          <div class="campo-grande">
             <label for="endereco">Endereço (opcional)</label>
             <input id="endereco" name="endereco" autocomplete="street-address" />
           </div>
-          <div>
-            <label for="placa">Placa do carro</label>
-            <input id="placa" name="placa" required placeholder="ABC1D23" />
+          <div class="campo-compacto">
+            <label for="hora_agendamento">Horário desejado</label>
+            <input id="hora_agendamento" name="hora_agendamento" type="time" required />
           </div>
-          <div>
+          <div class="campo-medio">
             <label for="data_agendamento">Data desejada</label>
             <input id="data_agendamento" name="data_agendamento" type="date" required />
           </div>
         </div>
 
-        <div class="linha-dupla">
-          <div>
-            <label for="hora_agendamento">Horário desejado</label>
-            <input id="hora_agendamento" name="hora_agendamento" type="time" required />
+        <div class="linha-flex">
+          <div class="campo-compacto">
+            <label for="placa">Placa do carro</label>
+            <input id="placa" name="placa" required placeholder="ABC1D23" />
           </div>
-          <div style="display:flex; align-items:flex-end;">
-            <div class="checkbox-linha" style="margin-top:0;">
-              <input id="precisa_guincho" name="precisa_guincho" type="checkbox" />
-              <label for="precisa_guincho" style="margin:0;">Preciso de guincho</label>
-            </div>
+          <div class="checkbox-linha" style="margin-top:0.9rem;">
+            <input id="precisa_guincho" name="precisa_guincho" type="checkbox" />
+            <label for="precisa_guincho" style="margin:0;">Preciso de guincho</label>
           </div>
         </div>
 
