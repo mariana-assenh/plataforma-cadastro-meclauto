@@ -9,7 +9,6 @@ compatibility_flags = ["nodejs_compat"]
 #   wrangler secret put SUPABASE_ANON_KEY
 #   wrangler secret put GOOGLE_CLIENT_EMAIL
 #   wrangler secret put GOOGLE_PRIVATE_KEY
-#   wrangler secret put TURNSTILE_SECRET_KEY
 [vars]
 SUPABASE_URL = "https://SEU-PROJETO.supabase.co"
 GOOGLE_CALENDAR_ID = "seuemail@gmail.com"

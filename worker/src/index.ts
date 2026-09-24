@@ -2,12 +2,10 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { supabaseAdmin, supabaseAnon, SupabaseEnv } from "./lib/supabaseAdmin";
 import { criarEventoGoogle, atualizarEventoGoogle, excluirEventoGoogle, CalendarEnv } from "./lib/googleCalendar";
-import { verificarTurnstile } from "./lib/turnstile";
 
 type Bindings = SupabaseEnv &
   CalendarEnv & {
     ALLOWED_ORIGIN: string;
-    TURNSTILE_SECRET_KEY: string;
   };
 
 type Variables = {
@@ -45,14 +43,6 @@ app.use("/admin/*", requireAdmin);
 app.post("/public/agendamentos", async (c) => {
   const body = await c.req.json().catch(() => null);
   if (!body) return c.json({ error: "corpo inválido" }, 400);
-
-  // Anti-spam via Cloudflare Turnstile (gratuito, sem limite de uso).
-  const turnstileToken = body["cf-turnstile-response"];
-  if (c.env.TURNSTILE_SECRET_KEY) {
-    const ip = c.req.header("CF-Connecting-IP") || undefined;
-    const ok = await verificarTurnstile(c.env.TURNSTILE_SECRET_KEY, turnstileToken, ip);
-    if (!ok) return c.json({ error: "verificação anti-spam falhou" }, 400);
-  }
 
   const obrigatorios = ["nome", "telefone", "placa", "descricao_problema", "data_agendamento", "hora_agendamento"];
   for (const campo of obrigatorios) {

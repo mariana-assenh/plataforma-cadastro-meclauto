@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>MECLAUTO — Híbridos, Elétricos e Combustão</title>
 <link rel="icon" href="assets/logo-meclauto.png" />
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <style>
   /* ---------- tokens de marca (extraídos da logo da MECLAUTO) ---------- */
   :root {
@@ -279,8 +279,6 @@
         <label for="descricao_problema">Descreva o problema do carro</label>
         <textarea id="descricao_problema" name="descricao_problema" required style="min-height:120px;"></textarea>
 
-        <div class="cf-turnstile" data-sitekey="SUA_SITE_KEY_DO_TURNSTILE" style="margin-top:1.1rem;"></div>
-
         <button type="submit" class="botao botao-primario">Solicitar agendamento</button>
       </form>
 
@@ -325,7 +323,6 @@
 
     const dados = Object.fromEntries(new FormData(form).entries());
     dados.precisa_guincho = form.precisa_guincho.checked;
-    dados["cf-turnstile-response"] = form.querySelector('[name="cf-turnstile-response"]')?.value || "";
 
     try {
       const resp = await fetch(`${CONFIG.WORKER_URL}/public/agendamentos`, {

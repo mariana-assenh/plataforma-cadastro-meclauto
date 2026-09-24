@@ -13,18 +13,17 @@ frontend/         site estático (Cloudflare Pages)
   assets/          logo da MECLAUTO
 worker/            API/pipeline (Cloudflare Workers, Hono)
   src/index.ts      rotas públicas e administrativas
-  src/lib/          Supabase, Google Calendar (Service Account), Turnstile
+  src/lib/          Supabase, Google Calendar (Service Account)
 supabase/
   migrations/       schema SQL (clientes, agendamentos)
 .github/workflows/  deploy automático no push pra main
 ```
 
 `index.html` e `admin.html` são arquivos únicos e autocontidos (HTML +
-CSS + JS no mesmo arquivo, à exceção dos scripts externos do Turnstile
-e do Supabase, carregados via CDN). Isso evita qualquer problema de
+CSS + JS no mesmo arquivo, à exceção do script externo do Supabase,
+carregado via CDN só no `admin.html`). Isso evita qualquer problema de
 caminho relativo quebrado ao abrir o arquivo direto no navegador ou
-pré-visualizar em alguma ferramenta — só depende de internet pros dois
-CDNs.
+pré-visualizar em alguma ferramenta.
 
 ## Fluxo
 
@@ -64,16 +63,17 @@ direto no navegador para autenticação (login do admin).
   (normalmente o próprio email do Google, ou em Configurações da
   agenda → "ID da agenda").
 
-### 3. Cloudflare Turnstile (captcha gratuito)
-- Painel Cloudflare → Turnstile → adicionar site → pegue Site Key e
-  Secret Key.
-
-### 4. Variáveis e segredos
+### 3. Variáveis e segredos
 
 No topo do `<script>` de `index.html` (bloco `const CONFIG = {...}`):
 `WORKER_URL`, `WHATSAPP_NUMERO` (com DDI, só dígitos) e
-`WHATSAPP_MENSAGEM`. Também troque `data-sitekey` do `<div class="cf-turnstile">`
-pela Site Key do Turnstile.
+`WHATSAPP_MENSAGEM`.
+
+> Nota: o formulário público não tem captcha/anti-spam por enquanto
+> (removemos o Cloudflare Turnstile porque estava dando dor de cabeça
+> nos testes e não é obrigatório pra funcionar). Dá pra adicionar de
+> volta mais pra frente, com o site já publicado num domínio real, se
+> começar a chegar spam.
 
 No topo do `<script>` de `admin.html`: `WORKER_URL`, `SUPABASE_URL` e
 `SUPABASE_ANON_KEY`. Nenhum desses valores é secreto — a anon key do
@@ -87,7 +87,6 @@ wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 wrangler secret put SUPABASE_ANON_KEY
 wrangler secret put GOOGLE_CLIENT_EMAIL
 wrangler secret put GOOGLE_PRIVATE_KEY
-wrangler secret put TURNSTILE_SECRET_KEY
 ```
 E ajuste `wrangler.toml` (`SUPABASE_URL`, `GOOGLE_CALENDAR_ID`,
 `ALLOWED_ORIGIN`).
