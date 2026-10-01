@@ -45,13 +45,30 @@ direto no navegador para autenticação (login do admin).
 
 ## Configuração necessária
 
-### 1. Supabase
-- Crie o projeto (ou reaproveite a organização do outro projeto — free
-  tier permite até 2 projetos ativos por organização).
-- Rode `supabase/migrations/0001_init.sql` no SQL editor.
-- Crie os usuários admin em Authentication → Users (email/senha).
-- Pegue: `SUPABASE_URL`, `anon key` e `service_role key` em Project
-  Settings → API.
+### 0. Isolamento Five Garage × MECLAUTO
+
+As duas oficinas usam a mesma conta Cloudflare, a mesma organização
+Supabase e a mesma conta GitHub, mas **os dados não se misturam**:
+
+| Recurso | MECLAUTO | Não usar |
+|---|---|---|
+| Banco | projeto Supabase próprio da MECLAUTO | projeto/banco da Five Garage |
+| API | Worker `meclauto-worker` | Worker da Five Garage |
+| Site | Pages `meclauto-site` | Pages da Five Garage |
+| Agenda | agenda Google da MECLAUTO | agenda da Five Garage |
+
+Os nomes `meclauto-*` são obrigatórios: na mesma conta Cloudflare, um
+nome repetido faria o deploy de uma oficina sobrescrever a outra.
+
+### 1. Supabase (projeto exclusivo da MECLAUTO)
+- No SQL Editor do projeto da MECLAUTO, rode em ordem:
+  `supabase/migrations/0001_init.sql` e depois
+  `supabase/migrations/0002_travar_acesso_publico.sql`.
+- Crie os usuários admin em Authentication → Users (email/senha) e
+  desligue "Allow new users to sign up" em Authentication → Sign In / Providers.
+- Pegue em Project Settings → API Keys / Data API: a URL do projeto, a
+  chave pública (publishable ou anon) e a chave secreta (secret ou
+  service_role). Confira no topo do painel que é o projeto da MECLAUTO.
 
 ### 2. Google Calendar (conta de serviço)
 - No Google Cloud Console: crie um projeto, ative a "Google Calendar API".
@@ -83,10 +100,10 @@ dentro do Worker).
 
 No Worker (`cd worker`):
 ```
-wrangler secret put SUPABASE_SERVICE_ROLE_KEY
-wrangler secret put SUPABASE_ANON_KEY
-wrangler secret put GOOGLE_CLIENT_EMAIL
-wrangler secret put GOOGLE_PRIVATE_KEY
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+npx wrangler secret put SUPABASE_ANON_KEY
+npx wrangler secret put GOOGLE_CLIENT_EMAIL
+npx wrangler secret put GOOGLE_PRIVATE_KEY
 ```
 E ajuste `wrangler.toml` (`SUPABASE_URL`, `GOOGLE_CALENDAR_ID`,
 `ALLOWED_ORIGIN`).
