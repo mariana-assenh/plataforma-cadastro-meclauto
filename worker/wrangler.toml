@@ -7,6 +7,9 @@ main = "src/index.ts"
 compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Não apagar no deploy as variáveis criadas pelo painel da Cloudflare
+keep_vars = true
+
 # Variáveis não-secretas podem ficar aqui.
 # Segredos (chaves) NUNCA vão neste arquivo — configure com:
 #   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY   (chave secreta do projeto Supabase da MECLAUTO)
