@@ -1,0 +1,10 @@
+# Site público da MECLAUTO (Workers com arquivos estáticos).
+# Publica só a pasta frontend/ (index.html, admin.html, assets).
+# A API fica em worker/wrangler.toml (meclauto-worker), não confundir.
+#
+# O "name" precisa ser igual ao nome do projeto do site no painel da Cloudflare.
+name = "meclauto-site"
+compatibility_date = "2026-09-01"
+
+[assets]
+directory = "./frontend"
