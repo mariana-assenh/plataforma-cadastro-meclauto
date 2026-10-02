@@ -15,7 +15,12 @@ type Variables = {
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 app.use("*", async (c, next) => {
-  const middleware = cors({ origin: c.env.ALLOWED_ORIGIN, allowHeaders: ["Content-Type", "Authorization"] });
+  // ALLOWED_ORIGIN aceita vários endereços separados por vírgula
+  const permitidas = c.env.ALLOWED_ORIGIN.split(",").map((o) => o.trim());
+  const middleware = cors({
+    origin: (origem) => (permitidas.includes(origem) ? origem : null),
+    allowHeaders: ["Content-Type", "Authorization"],
+  });
   return middleware(c, next);
 });
 

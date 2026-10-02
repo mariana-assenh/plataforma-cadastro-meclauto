@@ -1,8 +1,8 @@
 # Worker exclusivo da MECLAUTO.
 # O nome precisa ser diferente do Worker da Five Garage: como as duas
 # oficinas usam a mesma conta Cloudflare, um nome repetido faria um
-# deploy sobrescrever o outro.
-name = "meclauto-worker"
+# deploy sobrescrever o outro. Tem que ser igual ao nome do Worker no painel.
+name = "plataforma-cadastro-meclauto"
 main = "src/index.ts"
 compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
@@ -16,6 +16,7 @@ compatibility_flags = ["nodejs_compat"]
 #
 # ATENÇÃO: use só chaves do projeto Supabase da MECLAUTO, nunca as da Five Garage.
 [vars]
-SUPABASE_URL = "https://SEU-PROJETO-MECLAUTO.supabase.co"
+SUPABASE_URL = "https://guxevmwqhpfgbvobzzaz.supabase.co"
 GOOGLE_CALENDAR_ID = "ID_DA_AGENDA_DA_MECLAUTO"
-ALLOWED_ORIGIN = "https://meclauto-site.pages.dev"
+# Endereços do site que podem chamar a API (separados por vírgula)
+ALLOWED_ORIGIN = "https://meclauto.com.br,https://www.meclauto.com.br"
