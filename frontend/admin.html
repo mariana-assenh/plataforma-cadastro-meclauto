@@ -119,6 +119,7 @@
   .badge.pendente { background: #3d2f0d; color: #f5c451; }
   .badge.confirmado { background: #1f3514; color: #9fd77a; }
   .badge.cancelado { background: #3d1515; color: #f28b82; }
+  .badge.sem-agenda { background: #3d1515; color: #f28b82; display: inline-block; margin-top: 0.3rem; }
   .badge.concluido { background: #1d2534; color: #a8b8d8; }
 
   .acoes { white-space: nowrap; }
@@ -471,7 +472,7 @@
         <td>${esc(ag.placa)}</td>
         <td>${ag.precisa_guincho ? "Sim" : "Não"}</td>
         <td>${esc(ag.descricao_problema)}</td>
-        <td><span class="badge ${esc(ag.status)}">${esc(ag.status)}</span></td>
+        <td><span class="badge ${esc(ag.status)}">${esc(ag.status)}</span>${ag.status === "confirmado" && !ag.google_event_id ? '<br><span class="badge sem-agenda">fora da agenda</span>' : ""}</td>
         <td class="acoes"></td>
       `;
       const acoes = tr.querySelector(".acoes");
@@ -483,10 +484,30 @@
         acoes.appendChild(b);
       };
       if (ag.status === "pendente") botao("Aprovar", "", "confirmado");
+      if (ag.status === "confirmado" && !ag.google_event_id) {
+        const b = document.createElement("button");
+        b.textContent = "Reenviar para a agenda";
+        b.onclick = () => reenviarAgenda(ag.id, b);
+        acoes.appendChild(b);
+      }
       if (ag.status === "confirmado") botao("Concluir", "secundario", "concluido");
       if (ag.status !== "cancelado" && ag.status !== "concluido") botao("Cancelar", "perigo", "cancelado");
       corpo.appendChild(tr);
     }
+  }
+
+  // Confirmado que não entrou no Google: reenvia (a API cria o evento se faltar)
+  async function reenviarAgenda(id, botao) {
+    botao.disabled = true;
+    botao.textContent = "Enviando...";
+    try {
+      const resposta = await chamarApi(`/admin/agendamentos/${id}`, { method: "PUT", body: JSON.stringify({ status: "confirmado" }) });
+      if (resposta.aviso) toast("Ainda não entrou na agenda: " + resposta.aviso, "erro", 9000);
+      else toast("Enviado para a agenda do Google.");
+    } catch (e) {
+      toast("Erro: " + e.message, "erro", 8000);
+    }
+    carregarAgendamentos();
   }
 
   async function mudarStatus(id, status) {
