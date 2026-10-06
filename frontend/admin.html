@@ -235,7 +235,7 @@
     INTERVALO_ATUALIZACAO_MS: 30000,
   };
 
-  const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  const sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
   const $ = (id) => document.getElementById(id);
   const formLogin = $("card-login");
@@ -314,7 +314,7 @@
 
   async function sair() {
     clearInterval(timerAtualizacao);
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     sessaoAtual = null;
     pendentesConhecidos = null;
     painel.style.display = "none";
@@ -326,7 +326,7 @@
   formLogin.addEventListener("submit", async (ev) => {
     ev.preventDefault();
     loginMsg.textContent = "Entrando...";
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await sb.auth.signInWithPassword({
       email: $("login-email").value,
       password: $("login-senha").value,
     });
@@ -346,10 +346,10 @@
   $("btn-logout").addEventListener("click", sair);
 
   // Mantém o token atualizado e entra direto se já houver sessão salva
-  supabase.auth.onAuthStateChange((_evento, sessao) => {
+  sb.auth.onAuthStateChange((_evento, sessao) => {
     if (sessao && sessaoAtual) sessaoAtual = sessao;
   });
-  supabase.auth.getSession().then(({ data }) => {
+  sb.auth.getSession().then(({ data }) => {
     if (data.session) mostrarPainel(data.session);
   });
 
