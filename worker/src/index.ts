@@ -161,13 +161,41 @@ app.get("/admin/agendamentos", async (c) => {
 // Admin cria um agendamento diretamente (já nasce confirmado e ganha
 // evento no Google Calendar na hora).
 app.post("/admin/agendamentos", async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.json().catch(() => null);
+  if (!body) return c.json({ error: "corpo inválido" }, 400);
   const db = supabaseAdmin(c.env);
+
+  // Aceita um cliente_id existente ou os dados do cliente (nome + telefone).
+  // Se o telefone já existir, reaproveita o cadastro e atualiza os dados.
+  let clienteId: string | undefined = body.cliente_id;
+  if (!clienteId) {
+    if (!body.nome || !body.telefone) return c.json({ error: "informe nome e telefone do cliente" }, 400);
+    const { data: existente } = await db.from("clientes").select("id").eq("telefone", body.telefone).maybeSingle();
+    if (existente) {
+      clienteId = existente.id;
+      const atualizar: Record<string, string> = { nome: body.nome };
+      if (body.email) atualizar.email = body.email;
+      if (body.endereco) atualizar.endereco = body.endereco;
+      await db.from("clientes").update(atualizar).eq("id", clienteId);
+    } else {
+      const { data: novo, error: erroCliente } = await db
+        .from("clientes")
+        .insert({ nome: body.nome, telefone: body.telefone, email: body.email || null, endereco: body.endereco || null })
+        .select("id")
+        .single();
+      if (erroCliente) return c.json({ error: erroCliente.message }, 500);
+      clienteId = novo.id;
+    }
+  }
+
+  for (const campo of ["placa", "descricao_problema", "data_agendamento", "hora_agendamento"]) {
+    if (!body[campo]) return c.json({ error: `campo obrigatório: ${campo}` }, 400);
+  }
 
   const { data: agendamento, error } = await db
     .from("agendamentos")
     .insert({
-      cliente_id: body.cliente_id,
+      cliente_id: clienteId,
       placa: body.placa,
       precisa_guincho: !!body.precisa_guincho,
       descricao_problema: body.descricao_problema,

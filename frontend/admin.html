@@ -54,6 +54,27 @@
   header.topo .direita { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
   header.topo .voltar { color: var(--cor-prata); text-decoration: none; font-size: 0.88rem; }
   header.topo .voltar:hover { color: #fff; }
+
+  .link-agenda { display: none; align-items: center; gap: 0.45rem; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.9rem; border: 1px solid var(--cor-destaque); border-radius: 999px; padding: 0.5rem 1rem; white-space: nowrap; }
+  .link-agenda:hover { background: var(--cor-destaque); }
+  .link-agenda svg { width: 18px; height: 18px; }
+  body.logado .link-agenda { display: inline-flex; }
+  @media (max-width: 640px) { .link-agenda span { display: none; } .link-agenda { padding: 0.5rem 0.65rem; } }
+  a.ver-agenda { color: var(--cor-destaque); font-size: 0.82rem; text-decoration: none; white-space: nowrap; }
+  a.ver-agenda:hover { text-decoration: underline; }
+
+  /* formulário de cadastro */
+  .grade-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 1.25rem; }
+  .grade-form .largo { grid-column: 1 / -1; }
+  textarea { width: 100%; min-height: 100px; padding: 0.6rem 0.7rem; border: 1px solid var(--borda); border-radius: 8px; font-family: inherit; font-size: 0.95rem; background: var(--superficie); color: var(--texto); resize: vertical; }
+  textarea:focus { outline: 2px solid var(--cor-destaque); outline-offset: 1px; }
+  .checkbox-linha { display: flex; align-items: center; gap: 0.5rem; margin-top: 2.1rem; }
+  .checkbox-linha input { width: auto; }
+  .checkbox-linha label { margin: 0; }
+  .subtitulo-form { margin: 1.4rem 0 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--texto-suave); }
+  .subtitulo-form:first-of-type { margin-top: 0; }
+  .dica { color: var(--texto-suave); font-size: 0.82rem; margin: 0.35rem 0 0; }
+  #form-cadastro button[type="submit"] { margin-top: 1.5rem; width: 100%; }
   body.logado header.topo .voltar { display: none; }
 
   .sino { position: relative; display: none; background: transparent; border: 1px solid var(--borda); color: #fff; border-radius: 999px; width: 40px; height: 40px; cursor: pointer; padding: 0; align-items: center; justify-content: center; }
@@ -150,6 +171,10 @@
     <h1 class="area-admin" style="margin:0;">Área Administrativa</h1>
     <div class="direita">
       <a class="voltar" href="index.html">← Voltar ao site</a>
+      <a class="link-agenda" id="link-agenda" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener" title="Abrir o Google Agenda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span>Abrir agenda</span>
+      </a>
       <button class="sino" id="sino" title="Solicitações aguardando aprovação" aria-label="Solicitações aguardando aprovação">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <span class="contador" id="sino-contador">0</span>
@@ -187,6 +212,7 @@
 
       <nav class="abas">
         <button data-aba="agendamentos" class="ativa">Agendamentos</button>
+        <button data-aba="cadastro">+ Cadastrar agendamento</button>
         <button data-aba="clientes">Clientes</button>
       </nav>
 
@@ -210,6 +236,58 @@
             <tbody id="tabela-agendamentos"></tbody>
           </table>
         </div>
+      </section>
+
+      <section id="aba-cadastro" class="card" style="display:none;">
+        <h2>Cadastrar agendamento</h2>
+        <p class="dica" style="margin:-0.5rem 0 1.2rem;">Agendamentos cadastrados aqui já entram como confirmados e vão direto para a agenda do Google. Se o telefone já existir, o cadastro do cliente é reaproveitado.</p>
+        <form id="form-cadastro" autocomplete="off">
+          <p class="subtitulo-form">Cliente</p>
+          <div class="grade-form">
+            <div>
+              <label for="cad-telefone">Telefone (WhatsApp) *</label>
+              <input id="cad-telefone" name="telefone" required placeholder="(41) 99999-9999" list="lista-telefones" />
+              <datalist id="lista-telefones"></datalist>
+            </div>
+            <div>
+              <label for="cad-nome">Nome *</label>
+              <input id="cad-nome" name="nome" required />
+            </div>
+            <div>
+              <label for="cad-email">Email</label>
+              <input id="cad-email" name="email" type="email" />
+            </div>
+            <div>
+              <label for="cad-endereco">Endereço</label>
+              <input id="cad-endereco" name="endereco" />
+            </div>
+          </div>
+
+          <p class="subtitulo-form">Atendimento</p>
+          <div class="grade-form">
+            <div>
+              <label for="cad-data">Data *</label>
+              <input id="cad-data" name="data_agendamento" type="date" required />
+            </div>
+            <div>
+              <label for="cad-hora">Horário *</label>
+              <input id="cad-hora" name="hora_agendamento" type="time" required />
+            </div>
+            <div>
+              <label for="cad-placa">Placa *</label>
+              <input id="cad-placa" name="placa" required placeholder="ABC1D23" style="text-transform:uppercase;" />
+            </div>
+            <div class="checkbox-linha">
+              <input id="cad-guincho" name="precisa_guincho" type="checkbox" />
+              <label for="cad-guincho">Precisa de guincho</label>
+            </div>
+            <div class="largo">
+              <label for="cad-problema">Problema / serviço *</label>
+              <textarea id="cad-problema" name="descricao_problema" required></textarea>
+            </div>
+          </div>
+          <button type="submit" id="btn-cadastrar">Cadastrar e enviar para a agenda</button>
+        </form>
       </section>
 
       <section id="aba-clientes" class="card" style="display:none;">
@@ -363,10 +441,16 @@
     btn.addEventListener("click", () => {
       document.querySelectorAll("nav.abas button").forEach((b) => b.classList.remove("ativa"));
       btn.classList.add("ativa");
-      $("aba-agendamentos").style.display = btn.dataset.aba === "agendamentos" ? "block" : "none";
-      $("aba-clientes").style.display = btn.dataset.aba === "clientes" ? "block" : "none";
+      abrirAba(btn.dataset.aba);
     });
   });
+
+  function abrirAba(nome) {
+    document.querySelectorAll("nav.abas button").forEach((b) => b.classList.toggle("ativa", b.dataset.aba === nome));
+    for (const aba of ["agendamentos", "cadastro", "clientes"]) {
+      $("aba-" + aba).style.display = aba === nome ? "block" : "none";
+    }
+  }
 
   function atualizarTudo() {
     carregarSolicitacoes();
@@ -492,6 +576,17 @@
       }
       if (ag.status === "confirmado") botao("Concluir", "secundario", "concluido");
       if (ag.status !== "cancelado" && ag.status !== "concluido") botao("Cancelar", "perigo", "cancelado");
+      if (ag.google_event_id && ag.status !== "cancelado") {
+        const [a, m, d] = ag.data_agendamento.split("-");
+        const link = document.createElement("a");
+        link.className = "ver-agenda";
+        link.href = `https://calendar.google.com/calendar/r/day/${a}/${Number(m)}/${Number(d)}`;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = "Ver na agenda ↗";
+        acoes.appendChild(document.createElement("br"));
+        acoes.appendChild(link);
+      }
       corpo.appendChild(tr);
     }
   }
@@ -525,6 +620,43 @@
 
   $("filtro-status").addEventListener("change", carregarAgendamentos);
 
+  // ---------- cadastro feito pela equipe ----------
+  let clientesCache = [];
+
+  // Ao digitar um telefone já cadastrado, preenche os dados do cliente
+  $("cad-telefone").addEventListener("change", () => {
+    const tel = $("cad-telefone").value.trim();
+    const cli = clientesCache.find((c) => c.telefone === tel);
+    if (!cli) return;
+    $("cad-nome").value = cli.nome || "";
+    $("cad-email").value = cli.email || "";
+    $("cad-endereco").value = cli.endereco || "";
+  });
+
+  $("form-cadastro").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const f = ev.currentTarget;
+    const botao = $("btn-cadastrar");
+    const dados = Object.fromEntries(new FormData(f).entries());
+    dados.precisa_guincho = $("cad-guincho").checked;
+    dados.placa = (dados.placa || "").toUpperCase();
+    botao.disabled = true;
+    botao.textContent = "Cadastrando...";
+    try {
+      const resposta = await chamarApi("/admin/agendamentos", { method: "POST", body: JSON.stringify(dados) });
+      if (resposta.aviso) toast("Cadastrado, mas não entrou na agenda: " + resposta.aviso, "erro", 9000);
+      else toast("Agendamento cadastrado e enviado para a agenda.");
+      f.reset();
+      carregarAgendamentos();
+      carregarClientes();
+      abrirAba("agendamentos");
+    } catch (e) {
+      toast("Erro ao cadastrar: " + e.message, "erro", 8000);
+    }
+    botao.disabled = false;
+    botao.textContent = "Cadastrar e enviar para a agenda";
+  });
+
   // ---------- clientes ----------
   async function carregarClientes() {
     let lista;
@@ -533,6 +665,8 @@
     } catch (e) {
       return;
     }
+    clientesCache = lista;
+    $("lista-telefones").innerHTML = lista.map((c) => `<option value="${esc(c.telefone)}">${esc(c.nome)}</option>`).join("");
     const corpo = $("tabela-clientes");
     corpo.innerHTML = "";
     for (const cli of lista) {
