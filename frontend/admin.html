@@ -3,67 +3,140 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MECLAUTO — Painel administrativo</title>
+<title>MECLAUTO — Entrar</title>
 <link rel="icon" href="assets/logo-meclauto.png" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root {
     --cor-primaria: #0d151e;
-    --cor-primaria-escura: #060a10;
     --cor-destaque: #74b145;
     --cor-destaque-escura: #5c8f36;
-    --cor-destaque-clara: #e4f3d6;
     --cor-prata: #cbcdd6;
-    --cor-fundo: #f5f6f8;
-    --cor-texto: #1f2430;
-    --cor-borda: #d7dbe0;
     --fonte-principal: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --raio: 12px;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: var(--fonte-principal); background: var(--cor-fundo); color: var(--cor-texto); }
 
+    /* tema claro (tela de login) */
+    --fundo: #f5f6f8;
+    --superficie: #ffffff;
+    --superficie-2: #eef1f4;
+    --texto: #1f2430;
+    --texto-suave: #5b6472;
+    --borda: #d7dbe0;
+  }
+  /* tema escuro: depois de entrar, a interface inteira fica preta */
+  body.logado {
+    --fundo: #000000;
+    --superficie: #0e1114;
+    --superficie-2: #161a1f;
+    --texto: #e9ecef;
+    --texto-suave: #9aa3ad;
+    --borda: #252b32;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--fonte-principal); background: var(--fundo); color: var(--texto); transition: background 0.3s, color 0.3s; }
+  a { color: inherit; }
+
+  /* ---------- topo ---------- */
   header.topo {
     background: var(--cor-primaria); color: #fff;
     padding: 0.85rem 1.5rem; display: flex; align-items: center; gap: 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
+  body.logado header.topo { background: #000; border-bottom-color: var(--borda); }
   header.topo img.logo { height: 44px; width: auto; border-radius: 8px; }
-  header.topo .titulos { display: flex; flex-direction: column; line-height: 1.25; }
+  header.topo .titulos { display: flex; flex-direction: column; line-height: 1.25; flex: 1; min-width: 0; }
   header.topo .titulos strong { font-size: 1rem; font-weight: 700; }
   header.topo .titulos span { font-size: 0.8rem; color: var(--cor-prata); }
+  header.topo .area-admin { display: none; font-size: clamp(1.2rem, 3vw, 1.6rem); font-weight: 800; letter-spacing: 0.01em; }
+  body.logado header.topo .area-admin { display: block; }
+  body.logado header.topo .titulos { display: none; }
+  header.topo .direita { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
+  header.topo .voltar { color: var(--cor-prata); text-decoration: none; font-size: 0.88rem; }
+  header.topo .voltar:hover { color: #fff; }
+  body.logado header.topo .voltar { display: none; }
 
-  main { max-width: 960px; margin: 2rem auto; padding: 0 1rem 3rem; }
+  .sino { position: relative; display: none; background: transparent; border: 1px solid var(--borda); color: #fff; border-radius: 999px; width: 40px; height: 40px; cursor: pointer; padding: 0; align-items: center; justify-content: center; }
+  body.logado .sino { display: inline-flex; }
+  .sino svg { width: 20px; height: 20px; }
+  .sino .contador { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: #e5484d; color: #fff; font-size: 0.72rem; font-weight: 700; display: none; align-items: center; justify-content: center; }
+  .sino.tem .contador { display: inline-flex; }
 
-  .card { background: #fff; border: 1px solid var(--cor-borda); border-radius: var(--raio); padding: 1.5rem; margin-bottom: 1.25rem; }
+  main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem 3rem; }
+
+  .card { background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); padding: 1.5rem; margin-bottom: 1.25rem; }
+  .card h2 { margin: 0 0 1rem; font-size: 1.15rem; }
   label { display: block; font-size: 0.9rem; font-weight: 600; margin: 0.9rem 0 0.3rem; }
-  input, textarea, select { width: 100%; padding: 0.6rem 0.7rem; border: 1px solid var(--cor-borda); border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+  input, select { width: 100%; padding: 0.6rem 0.7rem; border: 1px solid var(--borda); border-radius: 8px; font-family: inherit; font-size: 0.95rem; background: var(--superficie); color: var(--texto); }
+  input:focus, select:focus { outline: 2px solid var(--cor-destaque); outline-offset: 1px; }
 
   button {
-    margin-top: 1.2rem; background: var(--cor-destaque); color: #fff; border: none;
-    padding: 0.7rem 1.3rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    background: var(--cor-destaque); color: #fff; border: none;
+    padding: 0.7rem 1.3rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit;
   }
   button:hover { background: var(--cor-destaque-escura); }
   button:disabled { opacity: 0.6; cursor: not-allowed; }
+  button.secundario { background: transparent; color: var(--texto); border: 1px solid var(--borda); }
+  button.secundario:hover { border-color: var(--texto-suave); background: var(--superficie-2); }
+  button.perigo { background: #c0392b; }
+  button.perigo:hover { background: #a23125; }
 
-  #login-mensagem { margin-top: 0.75rem; font-size: 0.9rem; color: #9c2a2a; }
+  /* ---------- login ---------- */
+  #card-login { max-width: 420px; margin: 3rem auto; }
+  #card-login button { width: 100%; margin-top: 1.4rem; }
+  #login-mensagem { margin-top: 0.75rem; font-size: 0.9rem; color: #9c2a2a; min-height: 1.2em; }
 
+  /* ---------- barra do usuário ---------- */
+  .barra-usuario { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .barra-usuario span { color: var(--texto-suave); font-size: 0.9rem; }
+
+  /* ---------- notificações / solicitações ---------- */
+  .notificacoes { border-color: #3a2f12; }
+  .notificacoes .cabeca { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+  .notificacoes .cabeca h2 { margin: 0; }
+  .pilula { background: #e5484d; color: #fff; border-radius: 999px; font-size: 0.78rem; font-weight: 700; padding: 0.1rem 0.55rem; }
+  .pilula.zero { background: var(--superficie-2); color: var(--texto-suave); }
+  .lista-solicitacoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .solicitacao { background: var(--superficie-2); border: 1px solid var(--borda); border-left: 4px solid #f5a524; border-radius: 10px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+  .solicitacao.nova { animation: piscar 1.2s ease-in-out 3; }
+  @keyframes piscar { 50% { border-left-color: var(--cor-destaque); box-shadow: 0 0 0 2px rgba(116,177,69,0.35); } }
+  .solicitacao .quando { font-weight: 700; font-size: 1rem; }
+  .solicitacao .cliente { font-size: 0.95rem; }
+  .solicitacao .meta { color: var(--texto-suave); font-size: 0.85rem; }
+  .solicitacao .problema { font-size: 0.9rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+  .solicitacao .botoes { display: flex; gap: 0.5rem; margin-top: 0.4rem; }
+  .solicitacao .botoes button { flex: 1; padding: 0.55rem 0.8rem; font-size: 0.9rem; }
+  .vazio { color: var(--texto-suave); font-size: 0.92rem; margin: 0; }
+
+  /* ---------- tabelas ---------- */
+  .tabela-rolavel { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--cor-borda); }
-  th { background: #eef1f4; }
+  th, td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--borda); vertical-align: top; }
+  th { background: var(--superficie-2); font-weight: 600; }
+  td small { color: var(--texto-suave); }
 
-  .badge { padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
-  .badge.pendente { background: #fff2d9; color: #8a5a00; }
-  .badge.confirmado { background: var(--cor-destaque-clara); color: #3d611f; }
-  .badge.cancelado { background: #fbe6e6; color: #9c2a2a; }
-  .badge.concluido { background: #e2e7ef; color: #384766; }
+  .badge { padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+  .badge.pendente { background: #3d2f0d; color: #f5c451; }
+  .badge.confirmado { background: #1f3514; color: #9fd77a; }
+  .badge.cancelado { background: #3d1515; color: #f28b82; }
+  .badge.concluido { background: #1d2534; color: #a8b8d8; }
 
+  .acoes { white-space: nowrap; }
   .acoes button { margin: 0.15rem 0.25rem 0.15rem 0; padding: 0.35rem 0.7rem; font-size: 0.82rem; }
-  .acoes button.secundario { background: #fff; color: var(--cor-primaria); border: 1px solid var(--cor-primaria); }
-  .acoes button.perigo { background: #c0392b; }
 
   nav.abas { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
-  nav.abas button { margin: 0; background: #fff; color: var(--cor-primaria); border: 1px solid var(--cor-primaria); }
-  nav.abas button.ativa { background: var(--cor-primaria); color: #fff; }
+  nav.abas button { background: transparent; color: var(--texto); border: 1px solid var(--borda); }
+  nav.abas button.ativa { background: var(--cor-destaque); border-color: var(--cor-destaque); color: #fff; }
+
+  .filtro { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; }
+  .filtro label { margin: 0; }
+  .filtro select { width: auto; }
+
+  /* ---------- aviso flutuante ---------- */
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none; transition: all 0.25s; background: #1a1f25; color: #fff; border: 1px solid #2c333b; border-radius: 10px; padding: 0.8rem 1.1rem; font-size: 0.92rem; max-width: min(92vw, 520px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 50; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.ok { border-color: var(--cor-destaque); }
+  #toast.erro { border-color: #e5484d; }
 </style>
 </head>
 <body>
@@ -71,26 +144,45 @@
     <img class="logo" src="assets/logo-meclauto.png" alt="MECLAUTO" />
     <div class="titulos">
       <strong>MECLAUTO</strong>
-      <span>Painel administrativo</span>
+      <span>Acesso restrito à equipe</span>
+    </div>
+    <h1 class="area-admin" style="margin:0;">Área Administrativa</h1>
+    <div class="direita">
+      <a class="voltar" href="index.html">← Voltar ao site</a>
+      <button class="sino" id="sino" title="Solicitações aguardando aprovação" aria-label="Solicitações aguardando aprovação">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="contador" id="sino-contador">0</span>
+      </button>
     </div>
   </header>
 
   <main>
-    <div class="card" id="card-login">
+    <!-- ---------- login ---------- -->
+    <form class="card" id="card-login">
       <h2>Entrar</h2>
       <label for="login-email">Email</label>
-      <input id="login-email" type="email" autocomplete="username" />
+      <input id="login-email" type="email" autocomplete="username" required />
       <label for="login-senha">Senha</label>
-      <input id="login-senha" type="password" autocomplete="current-password" />
-      <button id="btn-login">Entrar</button>
+      <input id="login-senha" type="password" autocomplete="current-password" required />
+      <button type="submit" id="btn-login">Entrar</button>
       <div id="login-mensagem"></div>
-    </div>
+    </form>
 
+    <!-- ---------- área administrativa ---------- -->
     <div id="painel" style="display:none;">
-      <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-        <span id="usuario-logado"></span>
-        <button id="btn-logout" style="background:#fff;color:var(--cor-primaria);border:1px solid var(--cor-primaria);margin:0;">Sair</button>
+      <div class="card barra-usuario">
+        <span>Conectado como <strong id="usuario-logado"></strong></span>
+        <button id="btn-logout" class="secundario">Sair</button>
       </div>
+
+      <section class="card notificacoes" id="secao-solicitacoes">
+        <div class="cabeca">
+          <h2>Solicitações aguardando aprovação</h2>
+          <span class="pilula zero" id="pilula-pendentes">0</span>
+        </div>
+        <div class="lista-solicitacoes" id="lista-solicitacoes"></div>
+        <p class="vazio" id="sem-solicitacoes">Nenhuma solicitação nova. A lista atualiza sozinha a cada 30 segundos.</p>
+      </section>
 
       <nav class="abas">
         <button data-aba="agendamentos" class="ativa">Agendamentos</button>
@@ -98,10 +190,10 @@
       </nav>
 
       <section id="aba-agendamentos" class="card">
-        <h2>Agendamentos</h2>
-        <div>
-          <label for="filtro-status" style="display:inline-block;">Filtrar por status</label>
-          <select id="filtro-status" style="width:auto; display:inline-block;">
+        <h2>Todos os agendamentos</h2>
+        <div class="filtro">
+          <label for="filtro-status">Status</label>
+          <select id="filtro-status">
             <option value="">Todos</option>
             <option value="pendente">Pendente</option>
             <option value="confirmado">Confirmado</option>
@@ -109,41 +201,87 @@
             <option value="concluido">Concluído</option>
           </select>
         </div>
-        <table>
-          <thead>
-            <tr><th>Data/Hora</th><th>Cliente</th><th>Placa</th><th>Guincho</th><th>Problema</th><th>Status</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="tabela-agendamentos"></tbody>
-        </table>
+        <div class="tabela-rolavel">
+          <table>
+            <thead>
+              <tr><th>Data/Hora</th><th>Cliente</th><th>Placa</th><th>Guincho</th><th>Problema</th><th>Status</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="tabela-agendamentos"></tbody>
+          </table>
+        </div>
       </section>
 
       <section id="aba-clientes" class="card" style="display:none;">
         <h2>Clientes</h2>
-        <button id="btn-novo-cliente">+ Novo cliente</button>
-        <table>
-          <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Endereço</th><th>Ações</th></tr></thead>
-          <tbody id="tabela-clientes"></tbody>
-        </table>
+        <button id="btn-novo-cliente" style="margin-bottom:1rem;">+ Novo cliente</button>
+        <div class="tabela-rolavel">
+          <table>
+            <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Endereço</th><th>Ações</th></tr></thead>
+            <tbody id="tabela-clientes"></tbody>
+          </table>
+        </div>
       </section>
     </div>
   </main>
 
+  <div id="toast" role="status" aria-live="polite"></div>
+
 <script>
-  // ---------- config: preencha com os dados reais antes do deploy ----------
+  // ---------- config ----------
   const CONFIG = {
     WORKER_URL: "https://meclauto-api.mariana-assenheimer.workers.dev",
     SUPABASE_URL: "https://guxevmwqhpfgbvobzzaz.supabase.co",
     SUPABASE_ANON_KEY: "sb_publishable_qGcxKQ61tE_XHJsWh6hnDQ_zJrovORq",
+    INTERVALO_ATUALIZACAO_MS: 30000,
   };
 
   const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
-  const cardLogin = document.getElementById("card-login");
-  const painel = document.getElementById("painel");
-  const loginMsg = document.getElementById("login-mensagem");
-  const usuarioLogado = document.getElementById("usuario-logado");
+  const $ = (id) => document.getElementById(id);
+  const formLogin = $("card-login");
+  const painel = $("painel");
+  const loginMsg = $("login-mensagem");
 
   let sessaoAtual = null;
+  let timerAtualizacao = null;
+  let pendentesConhecidos = null; // ids já vistos, para destacar os novos
+
+  // Escapa texto vindo do formulário público antes de colocar na tela
+  function esc(v) {
+    return String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function formatarData(data, hora) {
+    if (!data) return "";
+    const [a, m, d] = data.split("-");
+    const dias = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+    const dia = dias[new Date(`${data}T12:00:00`).getDay()];
+    return `${dia}, ${d}/${m}/${a} às ${(hora || "").slice(0, 5)}`;
+  }
+
+  let toastTimer = null;
+  function toast(texto, tipo = "ok", ms = 4500) {
+    const t = $("toast");
+    t.textContent = texto;
+    t.className = `show ${tipo}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => (t.className = ""), ms);
+  }
+
+  // Bip curto quando chega solicitação nova (só funciona depois de algum clique na página)
+  function bip() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.08, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+      o.connect(g).connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.35);
+    } catch (_) {}
+  }
 
   async function chamarApi(caminho, opcoes = {}) {
     const headers = Object.assign(
@@ -151,107 +289,230 @@
       opcoes.headers || {}
     );
     const resp = await fetch(`${CONFIG.WORKER_URL}${caminho}`, { ...opcoes, headers });
-    const dados = await resp.json();
+    const dados = await resp.json().catch(() => ({}));
+    if (resp.status === 401) {
+      sair();
+      throw new Error("sessão expirada, entre novamente");
+    }
     if (!resp.ok) throw new Error(dados.error || "erro na requisição");
     return dados;
   }
 
-  document.getElementById("btn-login").addEventListener("click", async () => {
-    const email = document.getElementById("login-email").value;
-    const senha = document.getElementById("login-senha").value;
-    loginMsg.textContent = "Entrando...";
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
-    if (error) {
-      loginMsg.textContent = "Erro no login: " + error.message;
-      return;
-    }
-    sessaoAtual = data.session;
-    usuarioLogado.textContent = data.user.email;
-    cardLogin.style.display = "none";
+  // ---------- entrar / sair ----------
+  function mostrarPainel(sessao) {
+    sessaoAtual = sessao;
+    $("usuario-logado").textContent = sessao.user.email;
+    formLogin.style.display = "none";
     painel.style.display = "block";
-    carregarAgendamentos();
-    carregarClientes();
-  });
+    document.body.classList.add("logado");
+    document.title = "Área Administrativa — MECLAUTO";
+    atualizarTudo();
+    clearInterval(timerAtualizacao);
+    timerAtualizacao = setInterval(carregarSolicitacoes, CONFIG.INTERVALO_ATUALIZACAO_MS);
+  }
 
-  document.getElementById("btn-logout").addEventListener("click", async () => {
+  async function sair() {
+    clearInterval(timerAtualizacao);
     await supabase.auth.signOut();
     sessaoAtual = null;
+    pendentesConhecidos = null;
     painel.style.display = "none";
-    cardLogin.style.display = "block";
+    formLogin.style.display = "block";
+    document.body.classList.remove("logado");
+    document.title = "MECLAUTO — Entrar";
+  }
+
+  formLogin.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    loginMsg.textContent = "Entrando...";
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: $("login-email").value,
+      password: $("login-senha").value,
+    });
+    if (error) {
+      loginMsg.textContent = "Email ou senha incorretos.";
+      return;
+    }
+    loginMsg.textContent = "";
+    $("login-senha").value = "";
+    mostrarPainel(data.session);
   });
 
+  $("btn-logout").addEventListener("click", sair);
+
+  // Mantém o token atualizado e entra direto se já houver sessão salva
+  supabase.auth.onAuthStateChange((_evento, sessao) => {
+    if (sessao && sessaoAtual) sessaoAtual = sessao;
+  });
+  supabase.auth.getSession().then(({ data }) => {
+    if (data.session) mostrarPainel(data.session);
+  });
+
+  $("sino").addEventListener("click", () => {
+    $("secao-solicitacoes").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- abas ----------
   document.querySelectorAll("nav.abas button").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("nav.abas button").forEach((b) => b.classList.remove("ativa"));
       btn.classList.add("ativa");
-      document.getElementById("aba-agendamentos").style.display = btn.dataset.aba === "agendamentos" ? "block" : "none";
-      document.getElementById("aba-clientes").style.display = btn.dataset.aba === "clientes" ? "block" : "none";
+      $("aba-agendamentos").style.display = btn.dataset.aba === "agendamentos" ? "block" : "none";
+      $("aba-clientes").style.display = btn.dataset.aba === "clientes" ? "block" : "none";
     });
   });
 
+  function atualizarTudo() {
+    carregarSolicitacoes();
+    carregarAgendamentos();
+    carregarClientes();
+  }
+
+  // ---------- solicitações pendentes (notificações) ----------
+  async function carregarSolicitacoes() {
+    let lista;
+    try {
+      lista = await chamarApi("/admin/agendamentos?status=pendente");
+    } catch (e) {
+      return; // tenta de novo no próximo ciclo
+    }
+
+    const idsAtuais = new Set(lista.map((a) => a.id));
+    const novos = pendentesConhecidos ? lista.filter((a) => !pendentesConhecidos.has(a.id)) : [];
+    pendentesConhecidos = idsAtuais;
+
+    // contadores
+    const n = lista.length;
+    $("pilula-pendentes").textContent = n;
+    $("pilula-pendentes").classList.toggle("zero", n === 0);
+    $("sino-contador").textContent = n;
+    $("sino").classList.toggle("tem", n > 0);
+    document.title = (n ? `(${n}) ` : "") + "Área Administrativa — MECLAUTO";
+    $("sem-solicitacoes").style.display = n ? "none" : "block";
+
+    // cartões
+    const box = $("lista-solicitacoes");
+    box.innerHTML = "";
+    const idsNovos = new Set(novos.map((a) => a.id));
+    for (const ag of lista) {
+      const div = document.createElement("div");
+      div.className = "solicitacao" + (idsNovos.has(ag.id) ? " nova" : "");
+      div.innerHTML = `
+        <div class="quando">${esc(formatarData(ag.data_agendamento, ag.hora_agendamento))}</div>
+        <div class="cliente"><strong>${esc(ag.clientes?.nome)}</strong> · ${esc(ag.clientes?.telefone)}</div>
+        <div class="meta">Placa ${esc(ag.placa)} · Guincho: ${ag.precisa_guincho ? "<strong>sim</strong>" : "não"}</div>
+        <div class="problema">${esc(ag.descricao_problema)}</div>
+        <div class="botoes">
+          <button data-acao="aprovar">Aprovar</button>
+          <button data-acao="recusar" class="secundario">Recusar</button>
+        </div>`;
+      div.querySelector('[data-acao="aprovar"]').onclick = (ev) => aprovar(ag, ev.currentTarget);
+      div.querySelector('[data-acao="recusar"]').onclick = (ev) => recusar(ag, ev.currentTarget);
+      box.appendChild(div);
+    }
+
+    if (novos.length) {
+      bip();
+      toast(novos.length === 1 ? `Nova solicitação de ${novos[0].clientes?.nome ?? "cliente"}` : `${novos.length} novas solicitações`);
+      carregarAgendamentos();
+    }
+  }
+
+  async function aprovar(ag, botao) {
+    botao.disabled = true;
+    botao.textContent = "Aprovando...";
+    try {
+      const resposta = await chamarApi(`/admin/agendamentos/${ag.id}`, { method: "PUT", body: JSON.stringify({ status: "confirmado" }) });
+      if (resposta.aviso) toast("Aprovado, mas não entrou na agenda: " + resposta.aviso, "erro", 9000);
+      else toast("Aprovado e adicionado à agenda do Google.");
+    } catch (e) {
+      toast("Erro ao aprovar: " + e.message, "erro", 8000);
+    }
+    carregarSolicitacoes();
+    carregarAgendamentos();
+  }
+
+  async function recusar(ag, botao) {
+    if (!confirm(`Recusar a solicitação de ${ag.clientes?.nome ?? "cliente"}?`)) return;
+    botao.disabled = true;
+    try {
+      await chamarApi(`/admin/agendamentos/${ag.id}`, { method: "PUT", body: JSON.stringify({ status: "cancelado" }) });
+      toast("Solicitação recusada.");
+    } catch (e) {
+      toast("Erro ao recusar: " + e.message, "erro", 8000);
+    }
+    carregarSolicitacoes();
+    carregarAgendamentos();
+  }
+
+  // ---------- tabela de agendamentos ----------
   async function carregarAgendamentos() {
-    const status = document.getElementById("filtro-status").value;
+    const status = $("filtro-status").value;
     const query = status ? `?status=${status}` : "";
-    const lista = await chamarApi(`/admin/agendamentos${query}`);
-    const corpo = document.getElementById("tabela-agendamentos");
+    let lista;
+    try {
+      lista = await chamarApi(`/admin/agendamentos${query}`);
+    } catch (e) {
+      toast("Erro ao carregar agendamentos: " + e.message, "erro");
+      return;
+    }
+    const corpo = $("tabela-agendamentos");
     corpo.innerHTML = "";
     for (const ag of lista) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${ag.data_agendamento} ${ag.hora_agendamento?.slice(0, 5) ?? ""}</td>
-        <td>${ag.clientes?.nome ?? ""}<br><small>${ag.clientes?.telefone ?? ""}</small></td>
-        <td>${ag.placa}</td>
+        <td>${esc(formatarData(ag.data_agendamento, ag.hora_agendamento))}</td>
+        <td>${esc(ag.clientes?.nome)}<br><small>${esc(ag.clientes?.telefone)}</small></td>
+        <td>${esc(ag.placa)}</td>
         <td>${ag.precisa_guincho ? "Sim" : "Não"}</td>
-        <td>${ag.descricao_problema}</td>
-        <td><span class="badge ${ag.status}">${ag.status}</span></td>
+        <td>${esc(ag.descricao_problema)}</td>
+        <td><span class="badge ${esc(ag.status)}">${esc(ag.status)}</span></td>
         <td class="acoes"></td>
       `;
       const acoes = tr.querySelector(".acoes");
-      if (ag.status === "pendente") {
+      const botao = (texto, classe, status) => {
         const b = document.createElement("button");
-        b.textContent = "Confirmar";
-        b.onclick = () => mudarStatus(ag.id, "confirmado");
+        b.textContent = texto;
+        if (classe) b.className = classe;
+        b.onclick = () => mudarStatus(ag.id, status);
         acoes.appendChild(b);
-      }
-      if (ag.status !== "cancelado") {
-        const b = document.createElement("button");
-        b.textContent = "Cancelar";
-        b.className = "perigo";
-        b.onclick = () => mudarStatus(ag.id, "cancelado");
-        acoes.appendChild(b);
-      }
-      if (ag.status === "confirmado") {
-        const b = document.createElement("button");
-        b.textContent = "Concluir";
-        b.className = "secundario";
-        b.onclick = () => mudarStatus(ag.id, "concluido");
-        acoes.appendChild(b);
-      }
+      };
+      if (ag.status === "pendente") botao("Aprovar", "", "confirmado");
+      if (ag.status === "confirmado") botao("Concluir", "secundario", "concluido");
+      if (ag.status !== "cancelado" && ag.status !== "concluido") botao("Cancelar", "perigo", "cancelado");
       corpo.appendChild(tr);
     }
   }
 
   async function mudarStatus(id, status) {
+    if (status === "cancelado" && !confirm("Cancelar este agendamento? O evento sai da agenda.")) return;
     try {
       const resposta = await chamarApi(`/admin/agendamentos/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
-      // O agendamento é salvo mesmo se o Google Agenda falhar — avisa o motivo
-      if (resposta && resposta.aviso) alert("Atenção: " + resposta.aviso);
-      carregarAgendamentos();
+      if (resposta.aviso) toast("Salvo, mas a agenda não foi atualizada: " + resposta.aviso, "erro", 9000);
+      else toast("Agendamento atualizado.");
     } catch (e) {
-      alert("Erro: " + e.message);
+      toast("Erro: " + e.message, "erro", 8000);
     }
+    carregarSolicitacoes();
+    carregarAgendamentos();
   }
 
-  document.getElementById("filtro-status").addEventListener("change", carregarAgendamentos);
+  $("filtro-status").addEventListener("change", carregarAgendamentos);
 
+  // ---------- clientes ----------
   async function carregarClientes() {
-    const lista = await chamarApi("/admin/clientes");
-    const corpo = document.getElementById("tabela-clientes");
+    let lista;
+    try {
+      lista = await chamarApi("/admin/clientes");
+    } catch (e) {
+      return;
+    }
+    const corpo = $("tabela-clientes");
     corpo.innerHTML = "";
     for (const cli of lista) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${cli.nome}</td><td>${cli.telefone}</td><td>${cli.email ?? ""}</td><td>${cli.endereco ?? ""}</td>
+        <td>${esc(cli.nome)}</td><td>${esc(cli.telefone)}</td><td>${esc(cli.email)}</td><td>${esc(cli.endereco)}</td>
         <td class="acoes"></td>
       `;
       const acoes = tr.querySelector(".acoes");
@@ -280,9 +541,10 @@
     const endereco = prompt("Endereço", cli.endereco ?? "");
     try {
       await chamarApi(`/admin/clientes/${cli.id}`, { method: "PUT", body: JSON.stringify({ nome, telefone, email, endereco }) });
+      toast("Cliente atualizado.");
       carregarClientes();
     } catch (e) {
-      alert("Erro: " + e.message);
+      toast("Erro: " + e.message, "erro");
     }
   }
 
@@ -290,14 +552,14 @@
     if (!confirm("Excluir este cliente e os agendamentos vinculados?")) return;
     try {
       await chamarApi(`/admin/clientes/${id}`, { method: "DELETE" });
-      carregarClientes();
-      carregarAgendamentos();
+      toast("Cliente excluído.");
+      atualizarTudo();
     } catch (e) {
-      alert("Erro: " + e.message);
+      toast("Erro: " + e.message, "erro");
     }
   }
 
-  document.getElementById("btn-novo-cliente").addEventListener("click", async () => {
+  $("btn-novo-cliente").addEventListener("click", async () => {
     const nome = prompt("Nome");
     if (!nome) return;
     const telefone = prompt("Telefone");
@@ -306,9 +568,10 @@
     const endereco = prompt("Endereço (opcional)") || null;
     try {
       await chamarApi("/admin/clientes", { method: "POST", body: JSON.stringify({ nome, telefone, email, endereco }) });
+      toast("Cliente cadastrado.");
       carregarClientes();
     } catch (e) {
-      alert("Erro: " + e.message);
+      toast("Erro: " + e.message, "erro");
     }
   });
 </script>

@@ -57,6 +57,8 @@
   .botao-secundario { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.5); }
   .botao-secundario:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
   .botao-pill { padding: 0.55rem 1.15rem; font-size: 0.88rem; }
+  .botao-entrar { background: transparent; color: #fff; border: 1.5px solid var(--cor-destaque); }
+  .botao-entrar:hover { background: var(--cor-destaque); }
   .botao svg { width: 18px; height: 18px; flex-shrink: 0; }
 
   /* ---------- hero ---------- */
@@ -171,7 +173,10 @@
         <li><a href="#servicos">Serviços</a></li>
         <li><a href="#agendamento">Agendamento</a></li>
       </ul>
-      <a class="botao botao-primario botao-pill" href="#agendamento">Agendar horário</a>
+      <a class="botao botao-entrar botao-pill" href="admin.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+        Entrar
+      </a>
     </div>
   </nav>
 
@@ -191,9 +196,12 @@
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 3C6.48 3 2 6.94 2 11.8c0 2.63 1.34 4.98 3.44 6.58L5 21l3.19-1.28c1.16.36 2.42.56 3.81.56 5.52 0 10-3.94 10-8.8S17.52 3 12 3Z" fill="currentColor"/>
             </svg>
-            Falar no WhatsApp
+            Solicitar agendamento pelo WhatsApp
           </a>
-          <a class="botao botao-secundario" href="#agendamento">Agendar horário</a>
+          <a class="botao botao-secundario" href="#agendamento">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
+            Cadastrar agendamento
+          </a>
         </div>
       </div>
       <div class="hero-imagem">
@@ -230,7 +238,7 @@
   <section class="secao-agendamento" id="agendamento">
     <div class="container">
       <div class="cabecalho">
-        <h2>Agende seu atendimento</h2>
+        <h2>Cadastrar agendamento</h2>
         <p>Preencha os dados abaixo. Nossa equipe confirma o horário e entra em contato se precisar de mais alguma informação.</p>
       </div>
 
@@ -279,7 +287,7 @@
         <label for="descricao_problema">Descreva o problema do carro</label>
         <textarea id="descricao_problema" name="descricao_problema" required style="min-height:120px;"></textarea>
 
-        <button type="submit" class="botao botao-primario">Solicitar agendamento</button>
+        <button type="submit" class="botao botao-primario">Cadastrar agendamento</button>
       </form>
 
       <div id="mensagem"></div>
@@ -301,7 +309,7 @@
   // ---------- config: preencha com os dados reais antes do deploy ----------
   const CONFIG = {
     WORKER_URL: "https://meclauto-api.mariana-assenheimer.workers.dev",
-    WHATSAPP_NUMERO: "5511999999999", // troque pelo número real, só dígitos, com DDI 55
+    WHATSAPP_NUMERO: "5541998043146", // só dígitos, com DDI 55 + DDD
     WHATSAPP_MENSAGEM: "Olá! Vim pelo site da MECLAUTO e gostaria de agendar um atendimento.",
   };
 
