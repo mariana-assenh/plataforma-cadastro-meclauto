@@ -1,7 +1,14 @@
-import { getGoogleAccessToken, GoogleEnv } from "./googleAuth";
+// Integração com o Google Agenda via Google Apps Script (apps-script/Code.gs).
+// A organização Google bloqueia chaves de conta de serviço, então o Worker
+// chama um App da Web do Apps Script, que roda na conta dona da agenda.
+//
+// Secrets no painel da Cloudflare (projeto meclauto-api):
+//   GOOGLE_SCRIPT_URL   — URL da implantação do App da Web (termina em /exec)
+//   GOOGLE_SCRIPT_TOKEN — token gerado pela função configurar() do script
 
-export interface CalendarEnv extends GoogleEnv {
-  GOOGLE_CALENDAR_ID: string;
+export interface CalendarEnv {
+  GOOGLE_SCRIPT_URL: string;
+  GOOGLE_SCRIPT_TOKEN: string;
 }
 
 export interface AgendamentoParaEvento {
@@ -17,10 +24,16 @@ export interface AgendamentoParaEvento {
 
 const DURACAO_PADRAO_MIN = 60;
 
+// Monta "YYYY-MM-DDTHH:MM:SS" em hora de Brasília (sem fuso), somando minutos.
+// O Apps Script interpreta esse texto como America/Sao_Paulo.
+function horaLocal(data: string, hora: string, somarMin = 0): string {
+  const hhmmss = hora.length === 5 ? `${hora}:00` : hora.slice(0, 8);
+  const base = new Date(`${data}T${hhmmss}Z`); // só para fazer a conta
+  return new Date(base.getTime() + somarMin * 60000).toISOString().slice(0, 19);
+}
+
 function montarEvento(a: AgendamentoParaEvento) {
-  const inicio = new Date(`${a.data_agendamento}T${a.hora_agendamento}`);
   const duracao = a.duracao_minutos ?? DURACAO_PADRAO_MIN;
-  const fim = new Date(inicio.getTime() + duracao * 60000);
   const nomeCliente = a.clientes?.nome ?? "Cliente";
 
   const linhas = [
@@ -32,57 +45,46 @@ function montarEvento(a: AgendamentoParaEvento) {
   if (a.clientes?.email) linhas.push(`Email: ${a.clientes.email}`);
 
   return {
-    summary: `Oficina — ${nomeCliente} (${a.placa})`,
-    description: linhas.join("\n"),
-    start: { dateTime: inicio.toISOString(), timeZone: "America/Sao_Paulo" },
-    end: { dateTime: fim.toISOString(), timeZone: "America/Sao_Paulo" },
+    titulo: `MECLAUTO — ${nomeCliente} (${a.placa})`,
+    descricao: linhas.join("\n"),
+    inicio: horaLocal(a.data_agendamento, a.hora_agendamento),
+    fim: horaLocal(a.data_agendamento, a.hora_agendamento, duracao),
   };
 }
 
-export async function criarEventoGoogle(env: CalendarEnv, agendamento: AgendamentoParaEvento): Promise<string> {
-  const token = await getGoogleAccessToken(env);
-  const res = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(env.GOOGLE_CALENDAR_ID)}/events`,
-    {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(montarEvento(agendamento)),
-    }
-  );
-  const data = (await res.json()) as { id?: string; error?: unknown };
-  if (!res.ok || !data.id) throw new Error(`Erro ao criar evento no Google Calendar: ${JSON.stringify(data)}`);
-  return data.id;
+type RespostaScript = { ok: boolean; eventId?: string; error?: string };
+
+async function chamarScript(env: CalendarEnv, payload: Record<string, unknown>): Promise<RespostaScript> {
+  if (!env.GOOGLE_SCRIPT_URL || !env.GOOGLE_SCRIPT_TOKEN) {
+    throw new Error("GOOGLE_SCRIPT_URL / GOOGLE_SCRIPT_TOKEN não configurados no Worker");
+  }
+  const res = await fetch(env.GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: env.GOOGLE_SCRIPT_TOKEN, ...payload }),
+    redirect: "follow",
+  });
+  const texto = await res.text();
+  let data: RespostaScript;
+  try {
+    data = JSON.parse(texto);
+  } catch {
+    throw new Error(`resposta inesperada do Apps Script (${res.status}): ${texto.slice(0, 200)}`);
+  }
+  if (!data.ok) throw new Error(`Apps Script: ${data.error ?? "erro desconhecido"}`);
+  return data;
 }
 
-export async function atualizarEventoGoogle(
-  env: CalendarEnv,
-  eventId: string,
-  agendamento: AgendamentoParaEvento
-): Promise<void> {
-  const token = await getGoogleAccessToken(env);
-  const res = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(env.GOOGLE_CALENDAR_ID)}/events/${eventId}`,
-    {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(montarEvento(agendamento)),
-    }
-  );
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(`Erro ao atualizar evento no Google Calendar: ${JSON.stringify(data)}`);
-  }
+export async function criarEventoGoogle(env: CalendarEnv, agendamento: AgendamentoParaEvento): Promise<string> {
+  const data = await chamarScript(env, { acao: "criar", evento: montarEvento(agendamento) });
+  if (!data.eventId) throw new Error("Apps Script não devolveu o id do evento");
+  return data.eventId;
+}
+
+export async function atualizarEventoGoogle(env: CalendarEnv, eventId: string, agendamento: AgendamentoParaEvento): Promise<void> {
+  await chamarScript(env, { acao: "atualizar", eventId, evento: montarEvento(agendamento) });
 }
 
 export async function excluirEventoGoogle(env: CalendarEnv, eventId: string): Promise<void> {
-  const token = await getGoogleAccessToken(env);
-  const res = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(env.GOOGLE_CALENDAR_ID)}/events/${eventId}`,
-    { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
-  );
-  // 410/404 significa que o evento já não existe — trata como sucesso.
-  if (!res.ok && res.status !== 410 && res.status !== 404) {
-    const data = await res.json();
-    throw new Error(`Erro ao excluir evento no Google Calendar: ${JSON.stringify(data)}`);
-  }
+  await chamarScript(env, { acao: "excluir", eventId });
 }

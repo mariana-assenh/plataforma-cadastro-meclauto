@@ -2,7 +2,7 @@
 # O nome precisa ser diferente do Worker da Five Garage: como as duas
 # oficinas usam a mesma conta Cloudflare, um nome repetido faria um
 # deploy sobrescrever o outro. Tem que ser igual ao nome do Worker no painel.
-name = "plataforma-cadastro-meclauto"
+name = "meclauto-api"
 main = "src/index.ts"
 compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
@@ -14,12 +14,11 @@ keep_vars = true
 # Segredos (chaves) NUNCA vão neste arquivo — configure com:
 #   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY   (chave secreta do projeto Supabase da MECLAUTO)
 #   npx wrangler secret put SUPABASE_ANON_KEY           (chave pública do projeto Supabase da MECLAUTO)
-#   npx wrangler secret put GOOGLE_CLIENT_EMAIL
-#   npx wrangler secret put GOOGLE_PRIVATE_KEY
+#   GOOGLE_SCRIPT_URL     (URL /exec do App da Web do Apps Script — apps-script/Code.gs)
+#   GOOGLE_SCRIPT_TOKEN   (token gerado pela função configurar() do script)
 #
 # ATENÇÃO: use só chaves do projeto Supabase da MECLAUTO, nunca as da Five Garage.
 [vars]
 SUPABASE_URL = "https://guxevmwqhpfgbvobzzaz.supabase.co"
-GOOGLE_CALENDAR_ID = "ID_DA_AGENDA_DA_MECLAUTO"
 # Endereços do site que podem chamar a API (separados por vírgula)
 ALLOWED_ORIGIN = "https://meclauto.com.br,https://www.meclauto.com.br"
