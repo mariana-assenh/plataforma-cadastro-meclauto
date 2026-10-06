@@ -338,7 +338,9 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados),
       });
-      const resultado = await resp.json();
+      const texto = await resp.text();
+      let resultado;
+      try { resultado = JSON.parse(texto); } catch (_) { resultado = { error: `erro ${resp.status} na API` }; }
       if (!resp.ok) throw new Error(resultado.error || "erro ao enviar solicitação");
 
       mostrarMensagem(

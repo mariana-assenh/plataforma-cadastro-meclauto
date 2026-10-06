@@ -42,6 +42,12 @@ async function requireAdmin(c: any, next: any) {
 
 app.use("/admin/*", requireAdmin);
 
+// Qualquer erro inesperado volta como JSON com o motivo (em vez de "Internal Server Error")
+app.onError((err, c) => {
+  console.error(err);
+  return c.json({ error: err?.message || "erro interno na API" }, 500);
+});
+
 // -----------------------------------------------------------------------
 // Rota pública: o próprio cliente solicita um agendamento
 // -----------------------------------------------------------------------
