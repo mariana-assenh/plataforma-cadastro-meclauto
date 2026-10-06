@@ -34,7 +34,7 @@ async function requireAdmin(c: any, next: any) {
 
   const supa = supabaseAnon(c.env);
   const { data, error } = await supa.auth.getUser(token);
-  if (error || !data.user) return c.json({ error: "token inválido ou expirado" }, 401);
+  if (error || !data.user) return c.json({ error: `token inválido ou expirado${error ? " (" + error.message + ")" : ""}` }, 401);
 
   c.set("adminUserId", data.user.id);
   await next();

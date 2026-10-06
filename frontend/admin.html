@@ -291,8 +291,9 @@
     const resp = await fetch(`${CONFIG.WORKER_URL}${caminho}`, { ...opcoes, headers });
     const dados = await resp.json().catch(() => ({}));
     if (resp.status === 401) {
-      sair();
-      throw new Error("sessão expirada, entre novamente");
+      await sair();
+      loginMsg.textContent = "A API recusou o acesso: " + (dados.error || "não autorizado") + ". Entre novamente; se repetir, confira o secret SUPABASE_ANON_KEY no meclauto-api.";
+      throw new Error(dados.error || "não autorizado");
     }
     if (!resp.ok) throw new Error(dados.error || "erro na requisição");
     return dados;
@@ -330,7 +331,11 @@
       password: $("login-senha").value,
     });
     if (error) {
-      loginMsg.textContent = "Email ou senha incorretos.";
+      const traducoes = {
+        "Invalid login credentials": "Email ou senha incorretos (ou o usuário foi criado em outro projeto do Supabase).",
+        "Email not confirmed": "Este email ainda não foi confirmado. No Supabase, abra o usuário e confirme, ou recrie marcando Auto Confirm User.",
+      };
+      loginMsg.textContent = traducoes[error.message] || "Erro no login: " + error.message;
       return;
     }
     loginMsg.textContent = "";
